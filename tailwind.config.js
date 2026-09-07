@@ -5,20 +5,21 @@ export default {
     extend: {
       colors: {
         surface: 'var(--ui-surface)',
-        panel: 'var(--ui-panel)',
+        surface2: 'var(--ui-surface-2)',
         line: 'var(--ui-line)',
         ink: 'var(--ui-ink)',
         muted: 'var(--ui-muted)',
         accent: 'var(--ui-accent)',
-        hover: 'var(--ui-hover)',
       },
       borderRadius: {
-        DEFAULT: '4px',
-        md: '4px',
-        lg: '6px',
+        DEFAULT: '11px',
+        md: '11px',
+        lg: '14px',
+        xl: '18px',
+        '2xl': '22px',
       },
       fontFamily: {
-        ui: ['Inter', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        ui: ['Manrope', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       fontSize: {
         xs: ['11px', '15px'],

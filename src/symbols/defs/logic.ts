@@ -1,0 +1,102 @@
+import type { SymbolDef } from '../types';
+import { LogicAnd, LogicNand, LogicNor, LogicNot, LogicOr, LogicXor } from '../shapes/logic';
+import { def } from './common';
+
+const twoIn = [
+  { x: -40, y: -20 },
+  { x: -40, y: 20 },
+  { x: 40, y: 0 },
+];
+const oneIn = [
+  { x: -40, y: 0 },
+  { x: 40, y: 0 },
+];
+const box = { x: -40, y: -32, w: 80, h: 64 };
+
+/** Логические элементы по ГОСТ 2.743. */
+export const LOGIC_SYMBOLS: SymbolDef[] = [
+  def({
+    type: 'logicAnd',
+    title: 'И (AND)',
+    category: 'logic',
+    keywords: 'and конъюнкция & DD',
+    ports: twoIn,
+    bbox: box,
+    prefix: 'DD',
+    defaultValue: '',
+    defaultUnit: '',
+    showValue: false,
+    hasPolarity: false,
+    Shape: LogicAnd,
+  }),
+  def({
+    type: 'logicOr',
+    title: 'ИЛИ (OR)',
+    category: 'logic',
+    keywords: 'or дизъюнкция 1 DD',
+    ports: twoIn,
+    bbox: box,
+    prefix: 'DD',
+    defaultValue: '',
+    defaultUnit: '',
+    showValue: false,
+    hasPolarity: false,
+    Shape: LogicOr,
+  }),
+  def({
+    type: 'logicNot',
+    title: 'НЕ (NOT)',
+    category: 'logic',
+    keywords: 'not инвертор DD',
+    ports: oneIn,
+    bbox: box,
+    prefix: 'DD',
+    defaultValue: '',
+    defaultUnit: '',
+    showValue: false,
+    hasPolarity: false,
+    Shape: LogicNot,
+  }),
+  def({
+    type: 'logicNand',
+    title: 'И-НЕ (NAND)',
+    category: 'logic',
+    keywords: 'nand штрих шеффера DD',
+    ports: twoIn,
+    bbox: box,
+    prefix: 'DD',
+    defaultValue: '',
+    defaultUnit: '',
+    showValue: false,
+    hasPolarity: false,
+    Shape: LogicNand,
+  }),
+  def({
+    type: 'logicNor',
+    title: 'ИЛИ-НЕ (NOR)',
+    category: 'logic',
+    keywords: 'nor стрелка пирса DD',
+    ports: twoIn,
+    bbox: box,
+    prefix: 'DD',
+    defaultValue: '',
+    defaultUnit: '',
+    showValue: false,
+    hasPolarity: false,
+    Shape: LogicNor,
+  }),
+  def({
+    type: 'logicXor',
+    title: 'Исключающее ИЛИ',
+    category: 'logic',
+    keywords: 'xor сложение по модулю 2 DD',
+    ports: twoIn,
+    bbox: box,
+    prefix: 'DD',
+    defaultValue: '',
+    defaultUnit: '',
+    showValue: false,
+    hasPolarity: false,
+    Shape: LogicXor,
+  }),
+];

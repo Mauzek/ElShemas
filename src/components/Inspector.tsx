@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { FlipHorizontal2, RotateCw, Trash2 } from 'lucide-react';
+import { FlipHorizontal2, Pencil, RotateCw, Trash2 } from 'lucide-react';
 import { ROTATIONS, type Rotation } from '../types/schema';
 import { useDoc } from '../store/useDoc';
 import { selectionCount, useUi } from '../store/useUi';
@@ -7,37 +7,40 @@ import { getSymbol } from '../symbols/registry';
 import { normalizePrimes } from '../lib/designator';
 import { cmdDelete } from '../lib/commands';
 import { AlignControls } from './AlignControls';
+import { Dropdown } from './Dropdown';
 import { ColorField } from './ColorField';
 import { TextField } from './TextField';
+import { PenSettings } from './PenSettings';
+import { RenderSettings } from './RenderSettings';
+import { Row } from './Row';
 
-function Row({ label, children }: { label: string; children: ReactNode }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <label className="mb-2 grid items-center gap-2" style={{ gridTemplateColumns: '84px 1fr' }}>
-      <span style={{ color: 'var(--ui-muted)' }}>{label}</span>
+    <section className="mb-3">
+      {title && <p className="section-title mb-2">{title}</p>}
       {children}
-    </label>
+    </section>
   );
 }
 
 export function Inspector() {
   const doc = useDoc((s) => s.doc);
   const selection = useUi((s) => s.selection);
+  const tool = useUi((s) => s.tool);
   const patchElements = useDoc((s) => s.patchElements);
   const patchWires = useDoc((s) => s.patchWires);
   const patchLabels = useDoc((s) => s.patchLabels);
   const rotateSelection = useDoc((s) => s.rotateSelection);
   const mirrorSelection = useDoc((s) => s.mirrorSelection);
-  const settings = useUi((s) => s.settings);
-  const setSettings = useUi((s) => s.setSettings);
 
   const elements = doc.elements.filter((e) => selection.elements.includes(e.id));
   const wires = doc.wires.filter((w) => selection.wires.includes(w.id));
   const labels = doc.labels.filter((l) => selection.labels.includes(l.id));
+  const strokes = doc.strokes.filter((s) => selection.strokes.includes(s.id));
   const total = selectionCount(selection);
   const first = elements[0];
   const ids = elements.map((e) => e.id);
-  const defs = elements.map((e) => getSymbol(e.type));
-  const anyPolarity = defs.some((d) => d.hasPolarity);
+  const anyPolarity = elements.some((e) => getSymbol(e.type).hasPolarity);
   const common = <T,>(values: T[]): T | '' => {
     if (values.length === 0) return '';
     return values.every((v) => v === values[0]) ? values[0] : '';
@@ -45,63 +48,49 @@ export function Inspector() {
 
   return (
     <aside
-      className="no-print panel divider-l scroll-thin flex h-full flex-col overflow-y-auto"
-      style={{ width: 244 }}
+      className="no-print card scroll-thin flex h-full flex-col overflow-y-auto"
+      style={{ width: 252, flex: '0 0 auto' }}
       aria-label="Свойства"
     >
-      <div className="divider-b flex items-center px-3" style={{ height: 36 }}>
+      <div className="flex items-center gap-2 px-3 pb-1 pt-3">
         <span className="section-title">
           {total === 0 ? 'Схема' : total === 1 ? 'Свойства' : `Выделено: ${total}`}
         </span>
       </div>
 
-      <div className="p-3">
+      <div className="px-3 pb-3">
         {total === 0 && (
           <>
-            <div className="mb-3" style={{ color: 'var(--ui-muted)', lineHeight: '18px' }}>
-              <p className="mb-2">Выберите элемент, чтобы изменить его свойства.</p>
-              <p className="mb-1">Элементов: {doc.elements.length}</p>
-              <p className="mb-1">Проводов: {doc.wires.length}</p>
-              <p>Подписей: {doc.labels.length}</p>
+            <div className="soft-row mb-3 grid grid-cols-3 gap-1 p-2 text-center">
+              {[
+                ['Элементы', doc.elements.length],
+                ['Провода', doc.wires.length],
+                ['Штрихи', doc.strokes.length],
+              ].map(([caption, value]) => (
+                <span key={String(caption)}>
+                  <b style={{ fontSize: 16 }}>{value}</b>
+                  <br />
+                  <span style={{ color: 'var(--ui-muted)', fontSize: 11 }}>{caption}</span>
+                </span>
+              ))}
             </div>
-            <section className="divider-t pt-3">
-              <p className="section-title mb-2">Настройки отрисовки</p>
-              <Row label="Катушка">
-                <select
-                  className="field"
-                  value={settings.inductorStyle}
-                  onChange={(e) => setSettings({ inductorStyle: e.target.value === 'arcs' ? 'arcs' : 'box' })}
-                >
-                  <option value="box">Прямоугольник</option>
-                  <option value="arcs">Дуги</option>
-                </select>
-              </Row>
-              <Row label="Пересечения">
-                <select
-                  className="field"
-                  value={settings.crossingStyle}
-                  onChange={(e) => setSettings({ crossingStyle: e.target.value === 'hop' ? 'hop' : 'plain' })}
-                >
-                  <option value="plain">Просто пересечение</option>
-                  <option value="hop">Полукруглая перемычка</option>
-                </select>
-              </Row>
-              <Row label="Провода">
-                <select
-                  className="field"
-                  value={settings.freeAngleWire ? 'free' : 'ortho'}
-                  onChange={(e) => setSettings({ freeAngleWire: e.target.value === 'free' })}
-                >
-                  <option value="ortho">Только ортогональные</option>
-                  <option value="free">Свободный угол (Shift — 45°)</option>
-                </select>
-              </Row>
-            </section>
+            {tool === 'draw' && (
+              <Section title="Карандаш">
+                <PenSettings />
+              </Section>
+            )}
+            <Section title="Отрисовка">
+              <RenderSettings />
+            </Section>
+            <p style={{ color: 'var(--ui-muted)', lineHeight: '17px' }}>
+              Выберите элемент, чтобы изменить его свойства, или возьмите инструмент{' '}
+              <Pencil size={12} style={{ display: 'inline', verticalAlign: -1 }} /> и рисуйте поверх схемы.
+            </p>
           </>
         )}
 
         {elements.length > 0 && (
-          <section className="mb-3">
+          <Section title={elements.length === 1 ? '' : `Элементы: ${elements.length}`}>
             {elements.length === 1 && first && (
               <>
                 <Row label="Обозначение">
@@ -131,50 +120,46 @@ export function Inspector() {
                   checked={elements.every((e) => e.showValue)}
                   onChange={(e) => patchElements(ids, { showValue: e.target.checked })}
                 />
-                <span style={{ color: 'var(--ui-muted)' }}>значение на схеме</span>
+                <span style={{ color: 'var(--ui-muted)' }}>показывать на схеме</span>
               </span>
             </Row>
             <Row label="Поворот">
               <span className="flex items-center gap-1">
-                <select
-                  className="field"
+                <Dropdown
                   value={String(common(elements.map((e) => e.rotation)))}
-                  onChange={(e) => patchElements(ids, { rotation: Number(e.target.value) as Rotation })}
-                >
-                  <option value="">—</option>
-                  {ROTATIONS.map((r) => (
-                    <option key={r} value={r}>
-                      {r}°
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => v && patchElements(ids, { rotation: Number(v) as Rotation })}
+                  ariaLabel="Поворот"
+                  options={[
+                    ...(common(elements.map((e) => e.rotation)) === '' ? [{ value: '', label: '—' }] : []),
+                    ...ROTATIONS.map((r) => ({ value: String(r), label: `${r}°` })),
+                  ]}
+                />
                 <button
                   className="tbtn"
                   onClick={() => rotateSelection(ids, 90)}
-                  title="Повернуть на 90° (R), Shift+R — на 45°"
+                  data-tip="Повернуть на 90° (R), Shift+R — на 45°"
                 >
                   <RotateCw size={16} />
                 </button>
-                <button className="tbtn" onClick={() => mirrorSelection(ids)} title="Зеркало (F)">
+                <button className="tbtn" onClick={() => mirrorSelection(ids)} data-tip="Зеркало (F)">
                   <FlipHorizontal2 size={16} />
                 </button>
               </span>
             </Row>
             {anyPolarity && (
               <Row label="Направление">
-                <select
-                  className="field"
+                <Dropdown
                   value={String(common(elements.map((e) => e.polarity ?? 'forward')))}
-                  onChange={(e) =>
-                    patchElements(ids, { polarity: e.target.value === 'reverse' ? 'reverse' : 'forward' })
-                  }
-                >
-                  <option value="forward">Прямое</option>
-                  <option value="reverse">Обратное</option>
-                </select>
+                  onChange={(v) => patchElements(ids, { polarity: v === 'reverse' ? 'reverse' : 'forward' })}
+                  ariaLabel="Направление"
+                  options={[
+                    { value: 'forward', label: 'Прямое' },
+                    { value: 'reverse', label: 'Обратное' },
+                  ]}
+                />
               </Row>
             )}
-            <Row label="Цвет линии">
+            <Row label="Цвет">
               <ColorField
                 value={common(elements.map((e) => e.color ?? '')) || ''}
                 onChange={(color) => patchElements(ids, { color: color || undefined })}
@@ -186,24 +171,22 @@ export function Inspector() {
                 <AlignControls ids={ids} />
               </div>
             )}
-          </section>
+          </Section>
         )}
 
         {wires.length > 0 && (
-          <section className="divider-t mb-3 pt-3">
-            <p className="section-title mb-2">Провода: {wires.length}</p>
-            <Row label="Цвет линии">
+          <Section title={`Провода: ${wires.length}`}>
+            <Row label="Цвет">
               <ColorField
                 value={common(wires.map((w) => w.color ?? '')) || ''}
                 onChange={(color) => patchWires(wires.map((w) => w.id), { color: color || undefined })}
               />
             </Row>
-          </section>
+          </Section>
         )}
 
         {labels.length > 0 && (
-          <section className="divider-t mb-3 pt-3">
-            <p className="section-title mb-2">Подписи: {labels.length}</p>
+          <Section title={`Подписи: ${labels.length}`}>
             {labels.length === 1 && (
               <Row label="Текст">
                 <TextField
@@ -238,11 +221,20 @@ export function Inspector() {
                 onChange={(color) => patchLabels(labels.map((l) => l.id), { color: color || undefined })}
               />
             </Row>
-          </section>
+          </Section>
+        )}
+
+        {strokes.length > 0 && (
+          <Section title={`Рисунок: ${strokes.length}`}>
+            <p className="mb-2" style={{ color: 'var(--ui-muted)' }}>
+              Штрихи карандаша. Новые рисуются с текущими настройками ниже.
+            </p>
+            <PenSettings />
+          </Section>
         )}
 
         {total > 0 && (
-          <button className="tbtn w-full" onClick={cmdDelete} style={{ color: 'var(--ui-danger)' }}>
+          <button className="tbtn tbtn-danger w-full" onClick={cmdDelete}>
             <Trash2 size={16} />
             Удалить выделенное
           </button>

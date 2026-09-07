@@ -5,6 +5,7 @@ import { Inspector } from './components/Inspector';
 import { StatusBar } from './components/StatusBar';
 import { Canvas } from './components/canvas/Canvas';
 import { Toast } from './components/Toast';
+import { Tooltips } from './components/Tooltips';
 import { ExportDialog } from './components/dialogs/ExportDialog';
 import { SchemaManager } from './components/dialogs/SchemaManager';
 import { BomDialog } from './components/dialogs/BomDialog';
@@ -24,15 +25,16 @@ export default function App() {
   useTheme();
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="app-shell">
       <TopBar />
-      <div className="flex min-h-0 flex-1">
+      <div className="app-body">
         <Palette collapsed={paletteCollapsed} onToggleCollapsed={() => setPaletteCollapsed((v) => !v)} />
         <Canvas />
         <Inspector />
       </div>
       <StatusBar />
       <Toast />
+      <Tooltips />
       {dialog === 'export' && <ExportDialog />}
       {dialog === 'manager' && <SchemaManager />}
       {dialog === 'bom' && <BomDialog />}

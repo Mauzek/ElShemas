@@ -1,5 +1,6 @@
 import type { SymbolDef } from '../types';
 import { CurrentArrow, LoopArrow, VoltageArrow } from '../shapes/misc';
+import { ComplexAxes, VectorArrow } from '../shapes/blocks';
 import { def } from './common';
 
 /** Аннотации для расчётных схем. */
@@ -45,5 +46,33 @@ export const ANNOTATIONS_SYMBOLS: SymbolDef[] = [
     showValue: false,
     hasPolarity: true,
     Shape: LoopArrow,
+  }),
+  def({
+    type: 'vector',
+    title: 'Вектор диаграммы',
+    category: 'annotations',
+    keywords: 'вектор диаграмма комплексная амплитуда',
+    ports: [],
+    bbox: { x: 0, y: -8, w: 62, h: 16 },
+    prefix: 'U',
+    defaultValue: '',
+    defaultUnit: '',
+    showValue: false,
+    hasPolarity: false,
+    Shape: VectorArrow,
+  }),
+  def({
+    type: 'axes',
+    title: 'Оси +1 / +j',
+    category: 'annotations',
+    keywords: 'оси координат комплексная плоскость диаграмма',
+    ports: [],
+    bbox: { x: -12, y: -104, w: 116, h: 128 },
+    prefix: '',
+    defaultValue: '',
+    defaultUnit: '',
+    showValue: false,
+    hasPolarity: false,
+    Shape: ComplexAxes,
   }),
 ];

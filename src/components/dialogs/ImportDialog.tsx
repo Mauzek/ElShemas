@@ -32,7 +32,12 @@ export function ImportDialog() {
   const insertIntoCurrent = () => {
     const step = current.grid * 2;
     const copy = cloneFragment(
-      { elements: pending.doc.elements, wires: pending.doc.wires, labels: pending.doc.labels },
+      {
+        elements: pending.doc.elements,
+        wires: pending.doc.wires,
+        labels: pending.doc.labels,
+        strokes: pending.doc.strokes,
+      },
       step,
       step,
     );
@@ -41,6 +46,7 @@ export function ImportDialog() {
       elements: copy.elements.map((e) => e.id),
       wires: copy.wires.map((w) => w.id),
       labels: copy.labels.map((l) => l.id),
+      strokes: copy.strokes.map((st) => st.id),
     });
     setPendingImport(null);
     showToast('Схема вставлена в текущую');

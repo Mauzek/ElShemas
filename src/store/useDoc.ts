@@ -5,6 +5,7 @@ import type {
   Point,
   Rotation,
   SchemaFile,
+  Stroke,
   TextLabel,
   Wire,
 } from '../types/schema';
@@ -43,6 +44,7 @@ interface DocState {
   addElement: (el: Element) => void;
   addWire: (wire: Wire) => void;
   addLabel: (label: TextLabel) => void;
+  addStroke: (stroke: Stroke) => void;
   addFragment: (fragment: Fragment) => Fragment;
   patchElements: (ids: string[], patch: Partial<Element>) => void;
   patchWires: (ids: string[], patch: Partial<Wire>) => void;
@@ -113,12 +115,14 @@ export const useDoc = create<DocState>((set, get) => {
     addElement: (el) => commit((doc) => ({ ...doc, elements: [...doc.elements, el] })),
     addWire: (wire) => commit((doc) => ({ ...doc, wires: [...doc.wires, wire] })),
     addLabel: (label) => commit((doc) => ({ ...doc, labels: [...doc.labels, label] })),
+    addStroke: (stroke) => commit((doc) => ({ ...doc, strokes: [...doc.strokes, stroke] })),
     addFragment: (fragment) => {
       commit((doc) => ({
         ...doc,
         elements: [...doc.elements, ...fragment.elements],
         wires: [...doc.wires, ...fragment.wires],
         labels: [...doc.labels, ...fragment.labels],
+        strokes: [...doc.strokes, ...fragment.strokes],
       }));
       return fragment;
     },

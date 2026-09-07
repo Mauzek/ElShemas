@@ -88,11 +88,13 @@ export function docBounds(doc: {
   elements: Element[];
   wires: { points: Point[] }[];
   labels: { x: number; y: number }[];
+  strokes?: { points: Point[] }[];
 }): Rect | null {
   let box: Rect | null = null;
   for (const el of doc.elements) box = unionRect(box, elementBBox(el));
   for (const w of doc.wires) box = unionRect(box, pointsRect(w.points));
   for (const l of doc.labels) box = unionRect(box, { x: l.x - 10, y: l.y - 16, w: 60, h: 24 });
+  for (const s of doc.strokes ?? []) box = unionRect(box, pointsRect(s.points));
   return box;
 }
 

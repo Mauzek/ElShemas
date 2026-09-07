@@ -1,9 +1,10 @@
 import type { SymbolDef } from '../types';
 import { SwitchClosed, SwitchOpen } from '../shapes/switching';
-import { Diode, Ground, Junction, Opamp, Terminal, Transformer } from '../shapes/misc';
+import { Ground, Junction, Terminal } from '../shapes/misc';
+import { Fuse } from '../shapes/blocks';
 import { def, twoPort } from './common';
 
-/** Коммутация, полупроводники и служебные обозначения. */
+/** Коммутация и служебные обозначения. */
 export const SWITCHING_SYMBOLS: SymbolDef[] = [
   def({
     type: 'switchOpen',
@@ -34,18 +35,18 @@ export const SWITCHING_SYMBOLS: SymbolDef[] = [
     Shape: SwitchClosed,
   }),
   def({
-    type: 'diode',
-    title: 'Диод',
+    type: 'fuse',
+    title: 'Предохранитель',
     category: 'switching',
-    keywords: 'diode вентиль VD',
+    keywords: 'плавкая вставка fuse FU',
     ports: twoPort,
-    bbox: { x: -40, y: -13, w: 80, h: 26 },
-    prefix: 'VD',
+    bbox: { x: -40, y: -10, w: 80, h: 20 },
+    prefix: 'FU',
     defaultValue: '',
     defaultUnit: '',
     showValue: false,
-    hasPolarity: true,
-    Shape: Diode,
+    hasPolarity: false,
+    Shape: Fuse,
   }),
   def({
     type: 'ground',
@@ -88,42 +89,5 @@ export const SWITCHING_SYMBOLS: SymbolDef[] = [
     showValue: false,
     hasPolarity: false,
     Shape: Terminal,
-  }),
-  def({
-    type: 'opamp',
-    title: 'Операционный усилитель',
-    category: 'switching',
-    keywords: 'ОУ opamp усилитель DA',
-    ports: [
-      { x: -40, y: -20 },
-      { x: -40, y: 20 },
-      { x: 40, y: 0 },
-    ],
-    bbox: { x: -40, y: -34, w: 80, h: 68 },
-    prefix: 'DA',
-    defaultValue: '',
-    defaultUnit: '',
-    showValue: false,
-    hasPolarity: false,
-    Shape: Opamp,
-  }),
-  def({
-    type: 'transformer',
-    title: 'Трансформатор',
-    category: 'switching',
-    keywords: 'transformer обмотки TV',
-    ports: [
-      { x: -40, y: -40 },
-      { x: -40, y: 40 },
-      { x: 40, y: -40 },
-      { x: 40, y: 40 },
-    ],
-    bbox: { x: -40, y: -44, w: 80, h: 88 },
-    prefix: 'TV',
-    defaultValue: '',
-    defaultUnit: '',
-    showValue: false,
-    hasPolarity: false,
-    Shape: Transformer,
   }),
 ];

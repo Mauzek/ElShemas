@@ -1,4 +1,4 @@
-import type { Element, Rotation, SchemaFile, TextLabel, Wire } from '../types/schema';
+import type { Element, Rotation, SchemaFile, Stroke, TextLabel, Wire } from '../types/schema';
 import type { Selection } from '../store/useUi';
 import { elementBBox, rotateBy } from './geometry';
 import { moveEndpoint, simplify } from './ortho';
@@ -35,7 +35,12 @@ export function translateItems(doc: SchemaFile, sel: Selection, dx: number, dy: 
     movedLabels.has(l.id) ? { ...l, x: l.x + dx, y: l.y + dy } : l,
   );
 
-  return { ...doc, elements, wires, labels };
+  const movedStrokes = new Set(sel.strokes);
+  const strokes = doc.strokes.map((st) =>
+    movedStrokes.has(st.id) ? { ...st, points: st.points.map((p) => ({ x: p.x + dx, y: p.y + dy })) } : st,
+  );
+
+  return { ...doc, elements, wires, labels, strokes };
 }
 
 /** Удаление выделенного. Привязки к удалённым элементам сбрасываются, провода остаются. */
@@ -52,23 +57,30 @@ export function deleteItems(doc: SchemaFile, sel: Selection): SchemaFile {
       return from === w.from && to === w.to ? w : { ...w, from, to };
     });
   const labels = doc.labels.filter((l) => !deadLabels.has(l.id));
-  return { ...doc, elements, wires, labels };
+  const deadStrokes = new Set(sel.strokes);
+  const strokes = doc.strokes.filter((st) => !deadStrokes.has(st.id));
+  return { ...doc, elements, wires, labels, strokes };
 }
 
 export interface Fragment {
   elements: Element[];
   wires: Wire[];
   labels: TextLabel[];
+  strokes: Stroke[];
 }
 
 export function extractFragment(doc: SchemaFile, sel: Selection): Fragment {
   const elementIds = new Set(sel.elements);
   const wireIds = new Set(sel.wires);
   const labelIds = new Set(sel.labels);
+  const strokeIds = new Set(sel.strokes);
   return {
     elements: doc.elements.filter((e) => elementIds.has(e.id)).map((e) => ({ ...e })),
     wires: doc.wires.filter((w) => wireIds.has(w.id)).map((w) => ({ ...w, points: w.points.map((p) => ({ ...p })) })),
     labels: doc.labels.filter((l) => labelIds.has(l.id)).map((l) => ({ ...l })),
+    strokes: doc.strokes
+      .filter((st) => strokeIds.has(st.id))
+      .map((st) => ({ ...st, points: st.points.map((p) => ({ ...p })) })),
   };
 }
 
@@ -96,7 +108,12 @@ export function cloneFragment(fragment: Fragment, dx: number, dy: number): Fragm
     };
   });
   const labels = fragment.labels.map((l) => ({ ...l, id: makeId('t'), x: l.x + dx, y: l.y + dy }));
-  return { elements, wires, labels };
+  const strokes = fragment.strokes.map((st) => ({
+    ...st,
+    id: makeId('s'),
+    points: st.points.map((p) => ({ x: p.x + dx, y: p.y + dy })),
+  }));
+  return { elements, wires, labels, strokes };
 }
 
 /** Поворот элементов вокруг собственных якорей. */
@@ -157,7 +174,7 @@ export function alignElements(doc: SchemaFile, ids: string[], mode: AlignMode): 
   for (const el of targets) {
     const { dx, dy } = shift(el);
     if (dx === 0 && dy === 0) continue;
-    next = translateItems(next, { elements: [el.id], wires: [], labels: [] }, Math.round(dx), Math.round(dy));
+    next = translateItems(next, { elements: [el.id], wires: [], labels: [], strokes: [] }, Math.round(dx), Math.round(dy));
   }
   return next;
 }
@@ -177,7 +194,7 @@ export function distributeElements(doc: SchemaFile, ids: string[], mode: Distrib
     const target = Math.round(first + step * i);
     const delta = target - el[axis];
     if (delta === 0) return;
-    const sel: Selection = { elements: [el.id], wires: [], labels: [] };
+    const sel: Selection = { elements: [el.id], wires: [], labels: [], strokes: [] };
     next = translateItems(next, sel, mode === 'horizontal' ? delta : 0, mode === 'vertical' ? delta : 0);
   });
   return next;

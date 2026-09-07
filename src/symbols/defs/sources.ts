@@ -1,5 +1,6 @@
 import type { SymbolDef } from '../types';
 import { Battery, SourceAc, SourceCurrent, SourceEmf, SourceVoltage } from '../shapes/sources';
+import { SourceThreePhase } from '../shapes/blocks';
 import { def, twoPort, wideBox } from './common';
 
 /** Источники ЭДС, тока и напряжения. */
@@ -73,5 +74,24 @@ export const SOURCES_SYMBOLS: SymbolDef[] = [
     showValue: true,
     hasPolarity: false,
     Shape: SourceAc,
+  }),
+  def({
+    type: 'sourceThreePhase',
+    title: 'Трёхфазный источник',
+    category: 'sources',
+    keywords: 'звезда три фазы ABC генератор',
+    ports: [
+      { x: 60, y: -40 },
+      { x: 60, y: 0 },
+      { x: 60, y: 40 },
+      { x: -60, y: 0 },
+    ],
+    bbox: { x: -60, y: -46, w: 120, h: 92 },
+    prefix: 'G',
+    defaultValue: '380',
+    defaultUnit: 'В',
+    showValue: true,
+    hasPolarity: false,
+    Shape: SourceThreePhase,
   }),
 ];

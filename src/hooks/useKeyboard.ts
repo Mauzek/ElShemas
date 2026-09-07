@@ -25,14 +25,18 @@ function isEditable(target: EventTarget | null): boolean {
   );
 }
 
-/** Глобальные горячие клавиши. */
+/**
+ * Глобальные горячие клавиши.
+ * Раскладка не важна: разбираем `event.code` — физическую клавишу,
+ * поэтому Ctrl+Я работает так же, как Ctrl+Z.
+ */
 export function useKeyboard(): void {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const ui = useUi.getState();
       const doc = useDoc.getState();
 
-      if (e.key === 'Escape') {
+      if (e.code === 'Escape') {
         cmdEscape();
         return;
       }
@@ -46,123 +50,118 @@ export function useKeyboard(): void {
         return;
       }
 
-      const ctrl = e.ctrlKey || e.metaKey;
-      if (ctrl) {
-        const key = e.key.toLowerCase();
-        if (key === 'z') {
-          e.preventDefault();
-          if (e.shiftKey) doc.redo();
-          else doc.undo();
-          return;
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.code) {
+          case 'KeyZ':
+            e.preventDefault();
+            if (e.shiftKey) doc.redo();
+            else doc.undo();
+            return;
+          case 'KeyY':
+            e.preventDefault();
+            doc.redo();
+            return;
+          case 'KeyC':
+            e.preventDefault();
+            cmdCopy();
+            return;
+          case 'KeyV':
+            e.preventDefault();
+            cmdPaste();
+            return;
+          case 'KeyD':
+            e.preventDefault();
+            cmdDuplicate();
+            return;
+          case 'KeyA':
+            e.preventDefault();
+            cmdSelectAll();
+            return;
+          case 'KeyS':
+            e.preventDefault();
+            cmdSaveJson();
+            return;
+          case 'KeyE':
+            e.preventDefault();
+            ui.setDialog('export');
+            return;
+          case 'Digit0':
+          case 'Numpad0':
+            e.preventDefault();
+            cmdZoomReset();
+            return;
+          case 'Digit1':
+          case 'Numpad1':
+            e.preventDefault();
+            cmdFit();
+            return;
+          default:
+            return;
         }
-        if (key === 'y') {
-          e.preventDefault();
-          doc.redo();
-          return;
-        }
-        if (key === 'c') {
-          e.preventDefault();
-          cmdCopy();
-          return;
-        }
-        if (key === 'v') {
-          e.preventDefault();
-          cmdPaste();
-          return;
-        }
-        if (key === 'd') {
-          e.preventDefault();
-          cmdDuplicate();
-          return;
-        }
-        if (key === 'a') {
-          e.preventDefault();
-          cmdSelectAll();
-          return;
-        }
-        if (key === 's') {
-          e.preventDefault();
-          cmdSaveJson();
-          return;
-        }
-        if (key === 'e') {
-          e.preventDefault();
-          ui.setDialog('export');
-          return;
-        }
-        if (key === '0') {
-          e.preventDefault();
-          cmdZoomReset();
-          return;
-        }
-        if (key === '1') {
-          e.preventDefault();
-          cmdFit();
-          return;
-        }
-        return;
       }
 
-      switch (e.key) {
+      switch (e.code) {
         case 'Delete':
         case 'Backspace':
           e.preventDefault();
           cmdDelete();
-          break;
+          return;
         case 'Enter':
+        case 'NumpadEnter':
           if (ui.wireDraft) {
             e.preventDefault();
             cmdFinishWire();
           }
-          break;
+          return;
         case 'Tab':
           if (ui.wireDraft) {
             e.preventDefault();
             cmdToggleElbow();
           }
-          break;
+          return;
         case 'ArrowLeft':
         case 'ArrowRight':
         case 'ArrowUp':
         case 'ArrowDown': {
           e.preventDefault();
           const step = e.shiftKey ? 1 : doc.doc.grid;
-          const dx = e.key === 'ArrowLeft' ? -step : e.key === 'ArrowRight' ? step : 0;
-          const dy = e.key === 'ArrowUp' ? -step : e.key === 'ArrowDown' ? step : 0;
+          const dx = e.code === 'ArrowLeft' ? -step : e.code === 'ArrowRight' ? step : 0;
+          const dy = e.code === 'ArrowUp' ? -step : e.code === 'ArrowDown' ? step : 0;
           cmdNudge(dx, dy);
-          break;
+          return;
         }
-        case '?':
-          ui.setDialog('shortcuts');
-          break;
+        case 'KeyV':
+          ui.setTool('select');
+          return;
+        case 'KeyH':
+          ui.setTool('hand');
+          return;
+        case 'KeyW':
+          ui.setTool('wire');
+          return;
+        case 'KeyT':
+          ui.setTool('text');
+          return;
+        case 'KeyP':
+          ui.setTool('draw');
+          return;
+        case 'KeyG':
+          if (e.shiftKey) ui.setSettings({ showGrid: !ui.settings.showGrid });
+          else ui.setSettings({ snap: !ui.settings.snap });
+          return;
+        case 'KeyR':
+          cmdRotate(e.shiftKey ? 45 : 90);
+          return;
+        case 'KeyF':
+          cmdMirror();
+          return;
         default:
           break;
       }
 
-      switch (e.key.toLowerCase()) {
-        case 'v':
-          ui.setTool('select');
-          break;
-        case 'h':
-          ui.setTool('hand');
-          break;
-        case 'w':
-          ui.setTool('wire');
-          break;
-        case 't':
-          ui.setTool('text');
-          break;
-        case 'g':
-          ui.setSettings({ snap: !ui.settings.snap });
-          break;
-        case 'r':
-          cmdRotate(e.shiftKey ? 45 : 90);
-          break;
-        case 'f':
-          cmdMirror();
-          break;
-        default:
-          break;
+      // «?» — на латинской раскладке Shift+/, на русской Shift+7.
+      if (e.key === '?' || (e.shiftKey && (e.code === 'Slash' || e.code === 'Digit7'))) {
+        ui.setDialog('shortcuts');
       }
     };
 

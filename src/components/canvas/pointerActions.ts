@@ -16,7 +16,8 @@ export type Interaction =
   | { mode: 'drag'; start: Point }
   | { mode: 'marquee'; start: Point; additive: boolean }
   | { mode: 'segment'; wireId: string; index: number; start: Point }
-  | { mode: 'label'; elementId: string; start: Point; base: Point };
+  | { mode: 'label'; elementId: string; start: Point; base: Point }
+  | { mode: 'draw' };
 
 export interface WireTarget {
   point: Point;
@@ -178,8 +179,9 @@ export function selectInMarquee(rect: Rect, additive: boolean): void {
   const elements = doc.elements.filter((el) => rectsIntersect(rect, elementBBox(el))).map((el) => el.id);
   const wires = doc.wires.filter((w) => w.points.some((p) => inside(p.x, p.y))).map((w) => w.id);
   const labels = doc.labels.filter((l) => inside(l.x, l.y) || inside(l.x, l.y - l.fontSize)).map((l) => l.id);
-  if (additive) ui.addToSelection({ elements, wires, labels });
-  else ui.setSelection({ elements, wires, labels });
+  const strokes = doc.strokes.filter((st) => st.points.some((p) => inside(p.x, p.y))).map((st) => st.id);
+  if (additive) ui.addToSelection({ elements, wires, labels, strokes });
+  else ui.setSelection({ elements, wires, labels, strokes });
 }
 
 /** Перетаскивание на полотно: файл схемы или символ из палитры. */
@@ -202,4 +204,29 @@ export function handleDrop(file: File | undefined, symbolType: string, world: Po
   const el = doc.createElement(symbolType, p.x, p.y, 0, false);
   doc.addElement(el);
   ui.setSelection({ elements: [el.id] });
+}
+
+/** Завершение штриха карандаша: одна запись в истории на весь штрих. */
+export function commitStroke(points: Point[]): void {
+  if (points.length < 2) return;
+  const { settings } = useUi.getState();
+  useDoc.getState().addStroke({
+    id: makeId('s'),
+    points: simplifyStroke(points),
+    width: settings.penWidth,
+    color: settings.penColor,
+  });
+}
+
+/** Прореживание точек штриха: соседние ближе 1.5 px отбрасываются. */
+export function simplifyStroke(points: Point[]): Point[] {
+  const out: Point[] = [];
+  for (const p of points) {
+    const last = out[out.length - 1];
+    if (!last || Math.hypot(p.x - last.x, p.y - last.y) > 1.5) {
+      out.push({ x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 });
+    }
+  }
+  if (out.length === 1 && points.length > 1) out.push(points[points.length - 1]);
+  return out;
 }

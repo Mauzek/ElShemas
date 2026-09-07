@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { ElementType, Point, PortRef, Rotation, SchemaFile } from '../types/schema';
 import type { Fragment } from '../lib/mutations';
 
-export type Tool = 'select' | 'hand' | 'wire' | 'text';
+export type Tool = 'select' | 'hand' | 'wire' | 'text' | 'draw';
 export type DialogName = 'export' | 'manager' | 'bom' | 'shortcuts' | 'check' | 'import' | null;
 
 export interface PendingImport {
@@ -21,6 +21,7 @@ export interface Selection {
   elements: string[];
   wires: string[];
   labels: string[];
+  strokes: string[];
 }
 
 export interface Settings {
@@ -30,6 +31,9 @@ export interface Settings {
   inductorStyle: 'box' | 'arcs';
   crossingStyle: 'plain' | 'hop';
   freeAngleWire: boolean;
+  /** Карандаш: цвет и толщина штриха. */
+  penColor: string;
+  penWidth: number;
 }
 
 export type EditTarget =
@@ -100,6 +104,8 @@ function loadSettings(): Settings {
     inductorStyle: 'box',
     crossingStyle: 'plain',
     freeAngleWire: false,
+    penColor: '#e11d48',
+    penWidth: 3,
   };
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
@@ -119,7 +125,7 @@ function saveSettings(settings: Settings): void {
   }
 }
 
-const emptySelection: Selection = { elements: [], wires: [], labels: [] };
+const emptySelection: Selection = { elements: [], wires: [], labels: [], strokes: [] };
 
 let toastTimer: number | undefined;
 
@@ -165,6 +171,7 @@ export const useUi = create<UiState>((set, get) => ({
         elements: Array.from(new Set([...s.selection.elements, ...(sel.elements ?? [])])),
         wires: Array.from(new Set([...s.selection.wires, ...(sel.wires ?? [])])),
         labels: Array.from(new Set([...s.selection.labels, ...(sel.labels ?? [])])),
+        strokes: Array.from(new Set([...s.selection.strokes, ...(sel.strokes ?? [])])),
       },
     })),
   toggleSelection: (kind, id) =>
@@ -200,5 +207,5 @@ export const useUi = create<UiState>((set, get) => ({
 }));
 
 export function selectionCount(s: Selection): number {
-  return s.elements.length + s.wires.length + s.labels.length;
+  return s.elements.length + s.wires.length + s.labels.length + s.strokes.length;
 }

@@ -65,6 +65,7 @@ function filterSelection(clone: Element, selection: Selection): void {
     if (kind === 'element') return selection.elements.includes(id);
     if (kind === 'wire') return selection.wires.includes(id);
     if (kind === 'label') return selection.labels.includes(id);
+    if (kind === 'stroke') return selection.strokes.includes(id);
     return false;
   };
   for (const node of Array.from(clone.querySelectorAll('[data-kind][data-id]'))) {

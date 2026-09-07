@@ -2,34 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------- Токены светлой темы ---------- */
+
 :root {
+  --ui-bg: #eaeef7;
   --ui-surface: #ffffff;
-  --ui-panel: #fafafa;
-  --ui-line: #e5e7eb;
-  --ui-ink: #111827;
-  --ui-muted: #6b7280;
-  --ui-accent: #2563eb;
-  --ui-hover: #f3f4f6;
-  --ui-danger: #b91c1c;
+  --ui-surface-2: #f2f5fb;
+  --ui-line: #e2e8f3;
+  --ui-ink: #161d2b;
+  --ui-muted: #6d778c;
+  --ui-accent: #4f63f5;
+  --ui-accent-ink: #ffffff;
+  --ui-accent-soft: rgba(79, 99, 245, 0.12);
+  --ui-accent-ring: rgba(79, 99, 245, 0.28);
+  --ui-danger: #d92d3c;
+  --ui-danger-soft: rgba(217, 45, 60, 0.1);
+
   --canvas-bg: #ffffff;
-  --grid-dot: #cbd0d8;
-  --sch-ink: #111827;
+  --grid-dot: #ccd6e8;
+  --sch-ink: #161d2b;
   --sch-w: 1.8px;
+  --sch-font: 'PT Serif', Georgia, 'Times New Roman', serif;
+
+  --r-card: 18px;
+  --r-btn: 11px;
+  --r-field: 11px;
+  --r-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(20, 30, 55, 0.05), 0 2px 6px rgba(20, 30, 55, 0.05);
+  --shadow-md: 0 2px 6px rgba(20, 30, 55, 0.06), 0 10px 24px -8px rgba(20, 30, 55, 0.14);
+  --shadow-lg: 0 12px 24px -8px rgba(20, 30, 55, 0.14), 0 32px 64px -24px rgba(20, 30, 55, 0.3);
+
   color-scheme: light;
 }
 
+/* ---------- Токены тёмной темы ---------- */
+
 html.dark {
-  --ui-surface: #14161b;
-  --ui-panel: #0f1115;
-  --ui-line: #272b34;
-  --ui-ink: #e5e7eb;
-  --ui-muted: #9ca3af;
-  --ui-accent: #3b82f6;
-  --ui-hover: #1c2029;
-  --ui-danger: #f87171;
-  --canvas-bg: #0f1115;
-  --grid-dot: #2c313c;
-  --sch-ink: #f5f6f8;
+  --ui-bg: #080a0f;
+  --ui-surface: #141926;
+  --ui-surface-2: #1d2334;
+  --ui-line: #262d40;
+  --ui-ink: #e7ecf6;
+  --ui-muted: #8d97ad;
+  --ui-accent: #7f8dff;
+  --ui-accent-ink: #0d1020;
+  --ui-accent-soft: rgba(127, 141, 255, 0.18);
+  --ui-accent-ring: rgba(127, 141, 255, 0.4);
+  --ui-danger: #ff6b74;
+  --ui-danger-soft: rgba(255, 107, 116, 0.14);
+
+  --canvas-bg: #10141f;
+  --grid-dot: #303950;
+  --sch-ink: #f2f5fc;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.35), 0 10px 24px -8px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 12px 24px -8px rgba(0, 0, 0, 0.5), 0 32px 64px -24px rgba(0, 0, 0, 0.7);
+
   color-scheme: dark;
 }
 
@@ -41,18 +71,16 @@ body,
 
 body {
   margin: 0;
-  background: var(--ui-panel);
+  background: var(--ui-bg);
   color: var(--ui-ink);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: Manrope, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
   -webkit-font-smoothing: antialiased;
 }
 
-button {
-  font: inherit;
-  color: inherit;
-}
-
+button,
 input,
 select {
   font: inherit;
@@ -61,7 +89,7 @@ select {
 
 :focus-visible {
   outline: 2px solid var(--ui-accent);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
 /* ---------- Отрисовка схемы ---------- */
@@ -91,13 +119,13 @@ select {
 .sch-text {
   fill: currentColor;
   stroke: none;
-  font-family: Georgia, 'Times New Roman', 'Cambria', serif;
+  font-family: var(--sch-font);
 }
 
 .sch-meter {
   font-size: 17px;
   font-style: normal;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .sch-label {
@@ -128,19 +156,177 @@ select {
   pointer-events: none;
 }
 
-/* ---------- Интерфейс ---------- */
+/* ---------- Каркас ---------- */
 
-.panel {
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 10px;
+  padding: 10px;
+}
+
+.app-body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 10px;
+}
+
+.card {
   background: var(--ui-surface);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-sm);
 }
 
-.divider-r {
-  border-right: 1px solid var(--ui-line);
+/* ---------- Кнопки ---------- */
+
+.tbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0 9px;
+  border: none;
+  border-radius: var(--r-btn);
+  background: transparent;
+  color: var(--ui-ink);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.14s ease, color 0.14s ease, transform 0.14s ease;
 }
 
-.divider-l {
-  border-left: 1px solid var(--ui-line);
+.tbtn:hover:not(:disabled) {
+  background: var(--ui-surface-2);
 }
+
+.tbtn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.tbtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.tbtn.active {
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent);
+}
+
+.tbtn-primary {
+  background: var(--ui-accent);
+  color: var(--ui-accent-ink);
+}
+
+.tbtn-primary:hover:not(:disabled) {
+  background: var(--ui-accent);
+  filter: brightness(1.08);
+}
+
+.tbtn-danger {
+  color: var(--ui-danger);
+}
+
+.tbtn-danger:hover:not(:disabled) {
+  background: var(--ui-danger-soft);
+}
+
+/* Сегментированный переключатель инструментов. */
+.segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-pill);
+  background: var(--ui-surface-2);
+}
+
+.segment .tbtn {
+  height: 28px;
+  min-width: 30px;
+  padding: 0 8px;
+  border-radius: var(--r-pill);
+}
+
+.segment .tbtn.active {
+  background: var(--ui-surface);
+  color: var(--ui-accent);
+  box-shadow: var(--shadow-sm);
+}
+
+html.dark .segment .tbtn.active {
+  background: var(--ui-accent-soft);
+}
+
+.divider-v {
+  width: 1px;
+  height: 20px;
+  margin: 0 4px;
+  border-radius: 1px;
+  background: var(--ui-line);
+  flex: 0 0 auto;
+}
+
+/* ---------- Поля ввода ---------- */
+
+.field {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--r-field);
+  background: var(--ui-surface-2);
+  font-weight: 500;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.field:hover {
+  border-color: var(--ui-line);
+}
+
+.field:focus {
+  border-color: var(--ui-accent);
+  box-shadow: 0 0 0 3px var(--ui-accent-ring);
+  outline: none;
+}
+
+.field-ghost {
+  background: transparent;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.field-ghost:hover {
+  background: var(--ui-surface-2);
+  border-color: transparent;
+}
+
+input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--ui-accent);
+  cursor: pointer;
+}
+
+input[type='color'] {
+  padding: 2px;
+  border: 1px solid var(--ui-line);
+  border-radius: 8px;
+  background: var(--ui-surface-2);
+  cursor: pointer;
+}
+
+input[type='range'] {
+  accent-color: var(--ui-accent);
+  cursor: pointer;
+}
+
+/* ---------- Мелочи ---------- */
 
 .divider-b {
   border-bottom: 1px solid var(--ui-line);
@@ -150,60 +336,17 @@ select {
   border-top: 1px solid var(--ui-line);
 }
 
-.tbtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 28px;
-  min-width: 28px;
-  padding: 0 6px;
-  border-radius: 4px;
-  border: 1px solid transparent;
-  background: transparent;
-  cursor: pointer;
-  color: var(--ui-ink);
-  white-space: nowrap;
-}
-
-.tbtn:hover:not(:disabled) {
-  background: var(--ui-hover);
-}
-
-.tbtn:active:not(:disabled) {
-  background: var(--ui-line);
-}
-
-.tbtn:disabled {
-  opacity: 0.38;
-  cursor: default;
-}
-
-.tbtn.active {
-  background: color-mix(in srgb, var(--ui-accent) 12%, transparent);
-  color: var(--ui-accent);
-  border-color: color-mix(in srgb, var(--ui-accent) 35%, transparent);
-}
-
-.field {
-  width: 100%;
-  height: 26px;
-  padding: 0 6px;
-  border: 1px solid var(--ui-line);
-  border-radius: 4px;
-  background: var(--ui-surface);
-}
-
-.field:focus {
-  border-color: var(--ui-accent);
-  outline: none;
-}
-
 .section-title {
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ui-muted);
+}
+
+.soft-row {
+  border-radius: 14px;
+  background: var(--ui-surface-2);
 }
 
 .scroll-thin {
@@ -218,27 +361,243 @@ select {
 
 .scroll-thin::-webkit-scrollbar-thumb {
   background: var(--ui-line);
-  border-radius: 6px;
-  border: 3px solid var(--ui-surface);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* Плитка элемента в палитре. */
+.palette-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 4px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--ui-ink);
+  cursor: grab;
+  transition: background 0.14s ease, border-color 0.14s ease, transform 0.14s ease;
+}
+
+.palette-item:hover {
+  background: color-mix(in srgb, var(--cat, var(--ui-accent)) 12%, transparent);
+  transform: translateY(-1px);
+}
+
+/* Цветная метка категории. */
+.cat-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--cat);
+}
+
+.cat-rule {
+  display: block;
+  width: 22px;
+  height: 3px;
+  margin: 8px auto 5px;
+  border-radius: 999px;
+  background: var(--cat);
+}
+
+.palette-item:active {
+  cursor: grabbing;
+  transform: scale(0.97);
+}
+
+.palette-item.active {
+  background: color-mix(in srgb, var(--cat, var(--ui-accent)) 18%, transparent);
+  border-color: color-mix(in srgb, var(--cat, var(--ui-accent)) 45%, transparent);
+  color: var(--cat, var(--ui-accent));
+}
+
+.palette-caption {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 13px;
+  color: var(--ui-muted);
+}
+
+.palette-item.active .palette-caption {
+  color: var(--cat, var(--ui-accent));
+}
+
+/* ---------- Выпадающий список ---------- */
+
+.dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Без min-width текст во flex-кнопке не даёт ей сжаться и вылезает за край. */
+.dropdown-trigger > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-menu {
+  position: fixed;
+  z-index: 60;
+  padding: 5px;
+  border: 1px solid var(--ui-line);
+  border-radius: 14px;
+  background: var(--ui-surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 30px;
+  padding: 0 9px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ui-ink);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background: var(--ui-surface-2);
+}
+
+.dropdown-item.active {
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent);
+}
+
+.dropdown-hint {
+  margin-left: auto;
+  color: var(--ui-muted);
+  font-weight: 500;
+  font-size: 11px;
+}
+
+/* Плавающая панель инструментов над полотном. */
+.floating-bar {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  max-width: calc(100% - 28px);
+  padding: 6px;
+  transform: translateX(-50%);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--r-pill);
+  background: var(--ui-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.swatch {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  margin: 0 2px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.14s ease;
+}
+
+.swatch:hover {
+  transform: scale(1.14);
+}
+
+/* ---------- Подсказки ---------- */
+
+.tooltip {
+  position: fixed;
+  z-index: 90;
+  max-width: 280px;
+  padding: 5px 9px;
+  border-radius: 9px;
+  background: #171c28;
+  color: #f4f6fb;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 15px;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: var(--shadow-md);
+  animation: tip-in 0.09s ease-out;
+}
+
+html.dark .tooltip {
+  background: #e9edf7;
+  color: #10141f;
+}
+
+@keyframes tip-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------- Диалоги ---------- */
 
 .dialog-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(17, 24, 39, 0.32);
+  z-index: 40;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 40;
+  padding: 20px;
+  background: rgba(12, 18, 32, 0.4);
+  backdrop-filter: blur(3px);
 }
 
 .dialog {
-  background: var(--ui-surface);
-  border: 1px solid var(--ui-line);
-  border-radius: 6px;
-  max-height: 88vh;
   display: flex;
   flex-direction: column;
+  max-height: 88vh;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-line);
+  border-radius: 22px;
+  box-shadow: var(--shadow-lg);
+}
+
+.toast {
+  border-radius: var(--r-pill);
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-line);
+  box-shadow: var(--shadow-md);
 }
 
 @media print {
@@ -251,9 +610,16 @@ select {
     height: auto;
     background: #fff;
   }
+  .app-shell {
+    padding: 0;
+    gap: 0;
+  }
   .print-canvas {
     position: static !important;
     width: 100% !important;
     height: auto !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }
 }

@@ -32,13 +32,13 @@ export function Dialog({ title, onClose, children, footer, width = 520 }: Props)
         aria-label={title}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <div className="divider-b flex items-center justify-between px-3" style={{ height: 40 }}>
-          <h2 style={{ fontWeight: 500 }}>{title}</h2>
+        <div className="divider-b flex items-center justify-between px-4" style={{ height: 52 }}>
+          <h2 style={{ fontWeight: 700, fontSize: 15 }}>{title}</h2>
           <button className="tbtn" onClick={onClose} aria-label="Закрыть">
             <X size={16} />
           </button>
         </div>
-        <div className="scroll-thin flex-1 overflow-y-auto p-3">{children}</div>
+        <div className="scroll-thin flex-1 overflow-y-auto p-4">{children}</div>
         {footer && <div className="divider-t flex items-center justify-end gap-2 p-3">{footer}</div>}
       </div>
     </div>

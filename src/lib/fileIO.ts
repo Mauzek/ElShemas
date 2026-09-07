@@ -1,4 +1,4 @@
-import type { Element, Point, Rotation, SchemaFile, TextLabel, Wire } from '../types/schema';
+import type { Element, Point, Rotation, SchemaFile, Stroke, TextLabel, Wire } from '../types/schema';
 import { ROTATIONS, SCHEMA_VERSION } from '../types/schema';
 import { hasSymbol } from '../symbols/registry';
 import { makeId } from './ids';
@@ -131,6 +131,21 @@ export function parseSchema(text: string): ParseResult {
     });
   }
 
+  const strokes: Stroke[] = [];
+  for (const item of Array.isArray(raw.strokes) ? raw.strokes : []) {
+    if (!isObj(item)) continue;
+    const points = (Array.isArray(item.points) ? item.points : [])
+      .map(toPoint)
+      .filter((p): p is Point => p !== null);
+    if (points.length < 2) continue;
+    strokes.push({
+      id: uniqueId('s', item.id),
+      points,
+      width: Math.min(40, Math.max(0.5, num(item.width, 3))),
+      ...(typeof item.color === 'string' ? { color: item.color } : {}),
+    });
+  }
+
   const grid = [10, 20, 40].includes(num(raw.grid, 20)) ? num(raw.grid, 20) : 20;
 
   return {
@@ -143,6 +158,7 @@ export function parseSchema(text: string): ParseResult {
       elements,
       wires,
       labels,
+      strokes,
     },
   };
 }

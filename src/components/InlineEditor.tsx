@@ -59,10 +59,10 @@ export function InlineEditor() {
       } else if (free) {
         const text = normalizePrimes(label).trim();
         if (text) patchLabels([free.id], { text });
-        else removeSelection({ elements: [], wires: [], labels: [free.id] });
+        else removeSelection({ elements: [], wires: [], labels: [free.id], strokes: [] });
       }
     } else if (free && !free.text.trim()) {
-      removeSelection({ elements: [], wires: [], labels: [free.id] });
+      removeSelection({ elements: [], wires: [], labels: [free.id], strokes: [] });
     }
     setEditing(null);
   };
@@ -81,12 +81,14 @@ export function InlineEditor() {
 
   return (
     <div
-      className="absolute z-20 flex items-center gap-1 rounded border p-1"
+      className="absolute z-20 flex items-center gap-1 p-1.5"
       style={{
         left: Math.round(pos.x - 60),
-        top: Math.round(pos.y - 54),
+        top: Math.round(pos.y - 58),
         background: 'var(--ui-surface)',
-        borderColor: 'var(--ui-line)',
+        border: '1px solid var(--ui-line)',
+        borderRadius: 14,
+        boxShadow: 'var(--shadow-md)',
       }}
       onPointerDown={(e) => e.stopPropagation()}
     >

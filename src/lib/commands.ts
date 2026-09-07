@@ -53,6 +53,7 @@ export function cmdPaste(): void {
     elements: copy.elements.map((e) => e.id),
     wires: copy.wires.map((w) => w.id),
     labels: copy.labels.map((l) => l.id),
+    strokes: copy.strokes.map((st) => st.id),
   });
   ui.setClipboard(cloneFragment(fragment, step, step));
 }
@@ -69,6 +70,7 @@ export function cmdDuplicate(): void {
     elements: copy.elements.map((e) => e.id),
     wires: copy.wires.map((w) => w.id),
     labels: copy.labels.map((l) => l.id),
+    strokes: copy.strokes.map((st) => st.id),
   });
 }
 
@@ -85,6 +87,7 @@ export function cmdSelectAll(): void {
     elements: doc.elements.map((e) => e.id),
     wires: doc.wires.map((w) => w.id),
     labels: doc.labels.map((l) => l.id),
+    strokes: doc.strokes.map((st) => st.id),
   });
 }
 

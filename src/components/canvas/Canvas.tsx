@@ -11,10 +11,12 @@ import { ElementView } from './ElementView';
 import { ElementLabel } from './ElementLabel';
 import { WireView } from './WireView';
 import { FreeLabelView } from './FreeLabelView';
+import { StrokeView, strokePath } from './StrokeView';
 import { Junctions } from './Junctions';
 import { Overlay } from './Overlay';
 import { InlineEditor } from '../InlineEditor';
 import { ZoomIndicator } from '../ZoomIndicator';
+import { FloatingToolbar } from '../FloatingToolbar';
 import { useCanvasPointer } from './useCanvasPointer';
 
 const NO_HOPS: Hop[] = [];
@@ -61,6 +63,7 @@ export function Canvas() {
   const selectedElements = useMemo(() => new Set(selection.elements), [selection.elements]);
   const selectedWires = useMemo(() => new Set(selection.wires), [selection.wires]);
   const selectedLabels = useMemo(() => new Set(selection.labels), [selection.labels]);
+  const selectedStrokes = useMemo(() => new Set(selection.strokes), [selection.strokes]);
 
   const boxes = useMemo(() => {
     const out: Rect[] = [];
@@ -74,8 +77,13 @@ export function Canvas() {
       if (!selectedLabels.has(l.id)) continue;
       out.push({ x: l.x - 4, y: l.y - l.fontSize, w: Math.max(20, l.text.length * l.fontSize * 0.6), h: l.fontSize + 6 });
     }
+    for (const st of doc.strokes) {
+      if (!selectedStrokes.has(st.id)) continue;
+      const r = pointsRect(st.points);
+      if (r) out.push(r);
+    }
     return out;
-  }, [doc, selectedElements, selectedWires, selectedLabels]);
+  }, [doc, selectedElements, selectedWires, selectedLabels, selectedStrokes]);
 
   const ports = useMemo(() => {
     if (tool !== 'wire') return [];
@@ -88,15 +96,15 @@ export function Canvas() {
       ? 'grabbing'
       : tool === 'hand'
         ? 'grab'
-        : tool === 'wire' || tool === 'text'
+        : tool === 'wire' || tool === 'text' || tool === 'draw'
           ? 'crosshair'
           : 'default';
 
   return (
     <div
       ref={wrapRef}
-      className="relative flex-1 overflow-hidden print-canvas"
-      style={{ background: 'var(--canvas-bg)' }}
+      className="card print-canvas relative flex-1 overflow-hidden"
+      style={{ background: 'var(--canvas-bg)', minWidth: 0 }}
     >
       <svg
         ref={svgRef}
@@ -137,7 +145,23 @@ export function Canvas() {
                 <FreeLabelView key={l.id} label={l} selected={selectedLabels.has(l.id)} />
               ))}
             </g>
+            <g data-layer="strokes">
+              {doc.strokes.map((st) => (
+                <StrokeView key={st.id} stroke={st} selected={selectedStrokes.has(st.id)} />
+              ))}
+            </g>
           </g>
+          {pointer.drawing.length > 1 && (
+            <path
+              className="no-hit"
+              d={strokePath(pointer.drawing)}
+              fill="none"
+              stroke={settings.penColor}
+              strokeWidth={settings.penWidth}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          )}
           <Overlay
             boxes={boxes}
             marquee={pointer.marquee}
@@ -150,6 +174,7 @@ export function Canvas() {
           />
         </g>
       </svg>
+      <FloatingToolbar />
       <ZoomIndicator viewSize={size} />
       <InlineEditor />
     </div>

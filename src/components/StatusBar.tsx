@@ -1,4 +1,5 @@
 import { useDeferredValue, useMemo } from 'react';
+import type { ReactNode } from 'react';
 import { useDoc } from '../store/useDoc';
 import { useUi } from '../store/useUi';
 import { analyze } from '../lib/nodes';
@@ -6,9 +7,26 @@ import { analyze } from '../lib/nodes';
 const HINTS: Record<string, string> = {
   select: 'Клик — выделить · Shift+клик — добавить · R — поворот · F — зеркало · Del — удалить',
   hand: 'Перетаскивание — панорамирование · пробел работает в любом инструменте',
-  wire: 'Клик — начать/излом · Tab — сменить колено · Enter — завершить · Esc — отменить',
+  wire: 'Клик — начать или излом · Tab — сменить колено · Shift — 45° · Enter — завершить',
   text: 'Клик по полотну — поставить подпись (узлы a, b, c, …)',
+  draw: 'Рисуйте от руки · цвет и толщина — в панели справа · Del — стереть выделенное',
 };
+
+const TOOL_NAMES: Record<string, string> = {
+  select: 'выделение',
+  hand: 'рука',
+  wire: 'провод',
+  text: 'текст',
+  draw: 'карандаш',
+};
+
+function Chip({ children }: { children: ReactNode }) {
+  return (
+    <span className="soft-row flex items-center gap-1.5 px-2.5" style={{ height: 24 }}>
+      {children}
+    </span>
+  );
+}
 
 export function StatusBar() {
   const doc = useDoc((s) => s.doc);
@@ -25,24 +43,31 @@ export function StatusBar() {
 
   return (
     <footer
-      className="no-print panel divider-t flex items-center gap-3 px-3"
-      style={{ height: 26, flex: '0 0 auto', color: 'var(--ui-muted)', fontSize: 11.5 }}
+      className="no-print card flex items-center gap-2 px-2"
+      style={{ height: 36, flex: '0 0 auto', color: 'var(--ui-muted)', fontSize: 11.5 }}
     >
-      <span style={{ minWidth: 108 }}>
-        X: {gx} · Y: {gy}
-      </span>
-      <span className="h-3 w-px" style={{ background: 'var(--ui-line)' }} />
-      <span>Элементов: {doc.elements.length}</span>
-      <span>Проводов: {doc.wires.length}</span>
-      <span>
-        Узлов: {conn.nodeCount} (ветвей ≥3: {conn.branchNodeCount})
-      </span>
-      <span className="h-3 w-px" style={{ background: 'var(--ui-line)' }} />
-      <span>
-        Инструмент: {placing ? 'размещение' : tool === 'select' ? 'выделение' : tool === 'hand' ? 'рука' : tool === 'wire' ? 'провод' : 'текст'}
-      </span>
-      <span>Привязка: {settings.snap ? 'вкл' : 'выкл'}</span>
-      <span className="h-3 w-px" style={{ background: 'var(--ui-line)' }} />
+      <Chip>
+        <span style={{ fontVariantNumeric: 'tabular-nums', minWidth: 74, display: 'inline-block' }}>
+          X {gx} · Y {gy}
+        </span>
+      </Chip>
+      <Chip>
+        Элементов <b style={{ color: 'var(--ui-ink)' }}>{doc.elements.length}</b>
+      </Chip>
+      <Chip>
+        Проводов <b style={{ color: 'var(--ui-ink)' }}>{doc.wires.length}</b>
+      </Chip>
+      <Chip>
+        Узлов <b style={{ color: 'var(--ui-ink)' }}>{conn.nodeCount}</b> · ветвей ≥3{' '}
+        <b style={{ color: 'var(--ui-ink)' }}>{conn.branchNodeCount}</b>
+      </Chip>
+      <Chip>
+        <span style={{ color: 'var(--ui-accent)', fontWeight: 700 }}>
+          {placing ? 'размещение' : TOOL_NAMES[tool]}
+        </span>
+        {settings.snap ? ' · привязка' : ''}
+        {settings.showGrid ? ' · сетка' : ''}
+      </Chip>
       <span className="truncate">{placing ? 'Клик — поставить элемент · R — поворот · F — зеркало · Esc — отмена' : HINTS[tool]}</span>
     </footer>
   );

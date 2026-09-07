@@ -6,9 +6,9 @@ export function Toast() {
   if (!toast) return null;
   return (
     <div
-      className="no-print fixed bottom-10 left-1/2 z-50 -translate-x-1/2 rounded border px-3 py-2"
+      className="toast no-print fixed bottom-14 left-1/2 z-50 -translate-x-1/2 px-4 py-2"
       role="status"
-      style={{ background: 'var(--ui-surface)', borderColor: 'var(--ui-line)', maxWidth: 460 }}
+      style={{ maxWidth: 460, fontWeight: 600 }}
     >
       {toast}
     </div>

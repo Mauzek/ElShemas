@@ -4,6 +4,8 @@ export type ElementType =
   | 'resistor'
   | 'resistorVar'
   | 'resistorTrim'
+  | 'resistorNonlinear'
+  | 'fuse'
   | 'capacitor'
   | 'capacitorPol'
   | 'inductor'
@@ -13,6 +15,7 @@ export type ElementType =
   | 'sourceVoltage'
   | 'battery'
   | 'sourceAc'
+  | 'sourceThreePhase'
   | 'ground'
   | 'junction'
   | 'switchOpen'
@@ -21,12 +24,27 @@ export type ElementType =
   | 'voltmeter'
   | 'wattmeter'
   | 'diode'
+  | 'zener'
+  | 'led'
+  | 'thyristor'
+  | 'transistorNpn'
+  | 'transistorPnp'
+  | 'transistorFet'
+  | 'logicAnd'
+  | 'logicOr'
+  | 'logicNot'
+  | 'logicNand'
+  | 'logicNor'
+  | 'logicXor'
   | 'opamp'
   | 'transformer'
+  | 'quadripole'
   | 'terminal'
   | 'currentArrow'
   | 'voltageArrow'
-  | 'loopArrow';
+  | 'loopArrow'
+  | 'vector'
+  | 'axes';
 
 /**
  * Угол поворота, кратный 45°. Базовые значения 0/90/180/270 используются
@@ -84,6 +102,14 @@ export interface Wire {
   color?: string;
 }
 
+/** Свободный штрих карандашом: пометки поверх схемы. */
+export interface Stroke {
+  id: string;
+  points: Point[];
+  width: number;
+  color?: string;
+}
+
 export interface TextLabel {
   id: string;
   x: number;
@@ -102,9 +128,11 @@ export interface SchemaFile {
   elements: Element[];
   wires: Wire[];
   labels: TextLabel[];
+  /** Рисунок от руки. Поле необязательное: файлы без него открываются как обычно. */
+  strokes: Stroke[];
 }
 
-export type SelectionKind = 'element' | 'wire' | 'label';
+export type SelectionKind = 'element' | 'wire' | 'label' | 'stroke';
 
 export interface SelectionItem {
   kind: SelectionKind;
@@ -114,5 +142,5 @@ export interface SelectionItem {
 export const SCHEMA_VERSION = 1 as const;
 
 export function emptySchema(title = 'Новая схема'): SchemaFile {
-  return { version: SCHEMA_VERSION, title, grid: 20, elements: [], wires: [], labels: [] };
+  return { version: SCHEMA_VERSION, title, grid: 20, elements: [], wires: [], labels: [], strokes: [] };
 }

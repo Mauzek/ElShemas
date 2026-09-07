@@ -21,7 +21,7 @@ export function ColorField({ value, onChange }: Props) {
         {value || 'по теме'}
       </span>
       {value && (
-        <button className="tbtn" onClick={() => onChange('')} title="Вернуть цвет темы" aria-label="Сбросить цвет">
+        <button className="tbtn" onClick={() => onChange('')} data-tip="Вернуть цвет темы" aria-label="Сбросить цвет">
           <X size={14} />
         </button>
       )}

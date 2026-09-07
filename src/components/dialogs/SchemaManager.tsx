@@ -114,7 +114,7 @@ export function SchemaManager() {
               </p>
             </div>
             <div className="flex gap-1">
-              <button className="tbtn" onClick={() => open(meta.id, stored)} title="Открыть">
+              <button className="tbtn" onClick={() => open(meta.id, stored)} data-tip="Открыть">
                 <FolderOpen size={16} />
               </button>
               <button
@@ -123,17 +123,17 @@ export function SchemaManager() {
                   setRenaming(meta.id);
                   setDraft(meta.title);
                 }}
-                title="Переименовать"
+                data-tip="Переименовать"
               >
                 <Pencil size={16} />
               </button>
-              <button className="tbtn" onClick={() => duplicate(stored)} title="Дублировать">
+              <button className="tbtn" onClick={() => duplicate(stored)} data-tip="Дублировать">
                 <Copy size={16} />
               </button>
               <button
                 className="tbtn"
                 onClick={() => remove(meta.id, meta.title)}
-                title="Удалить"
+                data-tip="Удалить"
                 style={{ color: 'var(--ui-danger)' }}
                 disabled={meta.id === docId}
               >

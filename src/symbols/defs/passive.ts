@@ -1,5 +1,6 @@
 import type { SymbolDef } from '../types';
 import { Capacitor, CapacitorPol, Inductor, MutualInductance, Resistor, ResistorTrim, ResistorVar } from '../shapes/passive';
+import { ResistorNonlinear } from '../shapes/blocks';
 import { def, twoPort } from './common';
 
 /** Пассивные элементы. */
@@ -106,5 +107,19 @@ export const PASSIVE_SYMBOLS: SymbolDef[] = [
     showValue: true,
     hasPolarity: false,
     Shape: MutualInductance,
+  }),
+  def({
+    type: 'resistorNonlinear',
+    title: 'Нелинейный резистор',
+    category: 'passive',
+    keywords: 'варистор терморезистор нелинейный',
+    ports: twoPort,
+    bbox: { x: -40, y: -16, w: 80, h: 32 },
+    prefix: 'R',
+    defaultValue: '',
+    defaultUnit: '',
+    showValue: false,
+    hasPolarity: false,
+    Shape: ResistorNonlinear,
   }),
 ];

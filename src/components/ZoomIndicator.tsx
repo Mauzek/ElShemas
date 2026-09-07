@@ -21,24 +21,29 @@ export function ZoomIndicator({ viewSize }: Props) {
 
   return (
     <div
-      className="no-print absolute bottom-3 right-3 flex items-center gap-1 rounded border px-1 py-1"
-      style={{ background: 'var(--ui-surface)', borderColor: 'var(--ui-line)' }}
+      className="no-print absolute bottom-3 right-3 flex items-center gap-1 p-1"
+      style={{
+        background: 'var(--ui-surface)',
+        border: '1px solid var(--ui-line)',
+        borderRadius: 'var(--r-pill)',
+        boxShadow: 'var(--shadow-md)',
+      }}
     >
-      <button className="tbtn" onClick={() => step(1 / 1.25)} title="Уменьшить" aria-label="Уменьшить">
+      <button className="tbtn" onClick={() => step(1 / 1.25)} data-tip="Уменьшить" aria-label="Уменьшить">
         <Minus size={16} />
       </button>
       <button
         className="tbtn"
         style={{ minWidth: 52 }}
         onClick={() => setViewport({ ...viewport, zoom: clampZoom(1) })}
-        title="Масштаб 100% (Ctrl+0)"
+        data-tip="Масштаб 100% (Ctrl+0)"
       >
         {Math.round(viewport.zoom * 100)}%
       </button>
-      <button className="tbtn" onClick={() => step(1.25)} title="Увеличить" aria-label="Увеличить">
+      <button className="tbtn" onClick={() => step(1.25)} data-tip="Увеличить" aria-label="Увеличить">
         <Plus size={16} />
       </button>
-      <button className="tbtn" onClick={fit} title="Вписать в экран (Ctrl+1)" aria-label="Вписать в экран">
+      <button className="tbtn" onClick={fit} data-tip="Вписать в экран (Ctrl+1)" aria-label="Вписать в экран">
         <Maximize2 size={16} />
       </button>
     </div>

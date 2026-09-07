@@ -44,7 +44,7 @@ export function AlignControls({ ids }: Props) {
           className="tbtn"
           disabled={!canAlign}
           onClick={() => align(ids, mode)}
-          title={title}
+          data-tip={title}
           aria-label={title}
         >
           <Icon size={16} />
@@ -56,7 +56,7 @@ export function AlignControls({ ids }: Props) {
           className="tbtn"
           disabled={!canDistribute}
           onClick={() => distribute(ids, mode)}
-          title={title}
+          data-tip={title}
           aria-label={title}
         >
           <Icon size={16} />

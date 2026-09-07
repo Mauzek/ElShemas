@@ -8,6 +8,7 @@ import {
   applyDrag,
   applyLabelDrag,
   applySegmentDrag,
+  commitStroke,
   createLabelAt,
   finishWire,
   ghostElement,
@@ -25,6 +26,8 @@ export interface CanvasPointer {
   preview: Point[];
   ghost: Element | null;
   hoverPoint: Point | null;
+  /** Штрих, который рисуется прямо сейчас. */
+  drawing: Point[];
   onPointerDown: (e: PointerEvent<SVGSVGElement>) => void;
   onPointerMove: (e: PointerEvent<SVGSVGElement>) => void;
   onPointerUp: (e: PointerEvent<SVGSVGElement>) => void;
@@ -42,6 +45,10 @@ export function useCanvasPointer(svgRef: RefObject<SVGSVGElement>): CanvasPointe
   const [preview, setPreview] = useState<Point[]>([]);
   const [ghost, setGhost] = useState<Element | null>(null);
   const [hoverPoint, setHoverPoint] = useState<Point | null>(null);
+  const [drawing, setDrawing] = useState<Point[]>([]);
+  // Точки штриха копятся в ref: pointermove имеет низкий приоритет обновления,
+  // и на быстром рисовании обработчик отпускания видел бы устаревший массив.
+  const drawRef = useRef<Point[]>([]);
 
   const toWorld = useCallback(
     (clientX: number, clientY: number): Point => {
@@ -81,6 +88,13 @@ export function useCanvasPointer(svgRef: RefObject<SVGSVGElement>): CanvasPointe
         setPreview([]);
         return;
       }
+      if (ui.tool === 'draw') {
+        e.preventDefault();
+        interaction.current = { mode: 'draw' };
+        drawRef.current = [world];
+        setDrawing(drawRef.current);
+        return;
+      }
       if (ui.tool === 'text') {
         // Без preventDefault браузер уводит фокус на body сразу после того,
         // как инлайновый редактор его забрал.
@@ -100,7 +114,8 @@ export function useCanvasPointer(svgRef: RefObject<SVGSVGElement>): CanvasPointe
         return;
       }
 
-      const bucket: keyof Selection = kind === 'wire' ? 'wires' : kind === 'label' ? 'labels' : 'elements';
+      const bucket: keyof Selection =
+        kind === 'wire' ? 'wires' : kind === 'label' ? 'labels' : kind === 'stroke' ? 'strokes' : 'elements';
 
       if (e.shiftKey) {
         ui.toggleSelection(bucket, id);
@@ -186,6 +201,10 @@ export function useCanvasPointer(svgRef: RefObject<SVGSVGElement>): CanvasPointe
         case 'label':
           applyLabelDrag(it.elementId, it.base, it.start, world);
           break;
+        case 'draw':
+          drawRef.current = [...drawRef.current, world];
+          setDrawing(drawRef.current);
+          break;
         default:
           break;
       }
@@ -199,6 +218,10 @@ export function useCanvasPointer(svgRef: RefObject<SVGSVGElement>): CanvasPointe
       if (it.mode === 'marquee') {
         if (marquee && (marquee.w > 2 || marquee.h > 2)) selectInMarquee(marquee, it.additive);
         setMarquee(null);
+      } else if (it.mode === 'draw') {
+        commitStroke(drawRef.current);
+        drawRef.current = [];
+        setDrawing([]);
       } else if (it.mode === 'drag' || it.mode === 'segment' || it.mode === 'label') {
         useDoc.getState().endTx();
       }
@@ -270,6 +293,7 @@ export function useCanvasPointer(svgRef: RefObject<SVGSVGElement>): CanvasPointe
     preview,
     ghost,
     hoverPoint,
+    drawing,
     onPointerDown,
     onPointerMove,
     onPointerUp,
