@@ -44,31 +44,56 @@ export function StatusBar() {
   return (
     <footer
       className="no-print card flex items-center gap-2 px-2"
-      style={{ height: 36, flex: '0 0 auto', color: 'var(--ui-muted)', fontSize: 11.5 }}
+      style={{
+        height: 36,
+        flex: "0 0 auto",
+        color: "var(--ui-muted)",
+        fontSize: 11.5,
+      }}
     >
       <Chip>
-        <span style={{ fontVariantNumeric: 'tabular-nums', minWidth: 74, display: 'inline-block' }}>
+        <span
+          style={{
+            fontVariantNumeric: "tabular-nums",
+            minWidth: 74,
+            display: "inline-block",
+          }}
+        >
           X {gx} · Y {gy}
         </span>
       </Chip>
       <Chip>
-        Элементов <b style={{ color: 'var(--ui-ink)' }}>{doc.elements.length}</b>
+        Элементов{" "}
+        <b style={{ color: "var(--ui-ink)" }}>{doc.elements.length}</b>
       </Chip>
       <Chip>
-        Проводов <b style={{ color: 'var(--ui-ink)' }}>{doc.wires.length}</b>
+        Проводов <b style={{ color: "var(--ui-ink)" }}>{doc.wires.length}</b>
       </Chip>
       <Chip>
-        Узлов <b style={{ color: 'var(--ui-ink)' }}>{conn.nodeCount}</b> · ветвей ≥3{' '}
-        <b style={{ color: 'var(--ui-ink)' }}>{conn.branchNodeCount}</b>
+        Узлов <b style={{ color: "var(--ui-ink)" }}>{conn.nodeCount}</b> ·
+        ветвей ≥3{" "}
+        <b style={{ color: "var(--ui-ink)" }}>{conn.branchNodeCount}</b>
       </Chip>
       <Chip>
-        <span style={{ color: 'var(--ui-accent)', fontWeight: 700 }}>
-          {placing ? 'размещение' : TOOL_NAMES[tool]}
+        <span style={{ color: "var(--ui-accent)", fontWeight: 700 }}>
+          {placing ? "размещение" : TOOL_NAMES[tool]}
         </span>
-        {settings.snap ? ' · привязка' : ''}
-        {settings.showGrid ? ' · сетка' : ''}
+        {settings.snap ? " · привязка" : ""}
+        {settings.showGrid ? " · сетка" : ""}
       </Chip>
-      <span className="truncate">{placing ? 'Клик — поставить элемент · R — поворот · F — зеркало · Esc — отмена' : HINTS[tool]}</span>
+      <span className="truncate">
+        {placing
+          ? "Клик — поставить элемент · R — поворот · F — зеркало · Esc — отмена"
+          : HINTS[tool]}
+      </span>
+      <a
+        className="ml-auto font-bold"
+        href="https://github.com/Mauzek"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Разработчик: Иллий Артём гр. 12002508
+      </a>
     </footer>
   );
 }

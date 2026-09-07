@@ -103,14 +103,14 @@ export function Canvas() {
   return (
     <div
       ref={wrapRef}
-      className="card print-canvas relative flex-1 overflow-hidden"
-      style={{ background: 'var(--canvas-bg)', minWidth: 0 }}
+      className="card print-canvas relative flex-1 overflow-hidden no-select"
+      style={{ background: "var(--canvas-bg)", minWidth: 0 }}
     >
       <svg
         ref={svgRef}
         width={size.width}
         height={size.height}
-        style={{ cursor, display: 'block', touchAction: 'none' }}
+        style={{ cursor, display: "block", touchAction: "none" }}
         onPointerDown={pointer.onPointerDown}
         onPointerMove={pointer.onPointerMove}
         onPointerUp={pointer.onPointerUp}
@@ -122,32 +122,60 @@ export function Canvas() {
         onDrop={pointer.onDrop}
       >
         {settings.showGrid && (
-          <Grid grid={doc.grid} viewport={viewport} width={size.width} height={size.height} />
+          <Grid
+            grid={doc.grid}
+            viewport={viewport}
+            width={size.width}
+            height={size.height}
+          />
         )}
-        <g transform={`translate(${viewport.x} ${viewport.y}) scale(${viewport.zoom})`}>
+        <g
+          transform={`translate(${viewport.x} ${viewport.y}) scale(${viewport.zoom})`}
+        >
           <g id={SCHEMA_LAYER_ID}>
             <g data-layer="wires">
               {doc.wires.map((w) => (
-                <WireView key={w.id} wire={w} selected={selectedWires.has(w.id)} hops={hops.get(w.id) ?? NO_HOPS} />
+                <WireView
+                  key={w.id}
+                  wire={w}
+                  selected={selectedWires.has(w.id)}
+                  hops={hops.get(w.id) ?? NO_HOPS}
+                />
               ))}
             </g>
             <Junctions points={conn.junctions} />
             <g data-layer="elements">
               {doc.elements.map((el) => (
-                <ElementView key={el.id} element={el} selected={selectedElements.has(el.id)} />
+                <ElementView
+                  key={el.id}
+                  element={el}
+                  selected={selectedElements.has(el.id)}
+                />
               ))}
             </g>
             <g data-layer="labels">
               {doc.elements.map((el) => (
-                <ElementLabel key={el.id} element={el} selected={selectedElements.has(el.id)} />
+                <ElementLabel
+                  key={el.id}
+                  element={el}
+                  selected={selectedElements.has(el.id)}
+                />
               ))}
               {doc.labels.map((l) => (
-                <FreeLabelView key={l.id} label={l} selected={selectedLabels.has(l.id)} />
+                <FreeLabelView
+                  key={l.id}
+                  label={l}
+                  selected={selectedLabels.has(l.id)}
+                />
               ))}
             </g>
             <g data-layer="strokes">
               {doc.strokes.map((st) => (
-                <StrokeView key={st.id} stroke={st} selected={selectedStrokes.has(st.id)} />
+                <StrokeView
+                  key={st.id}
+                  stroke={st}
+                  selected={selectedStrokes.has(st.id)}
+                />
               ))}
             </g>
           </g>
