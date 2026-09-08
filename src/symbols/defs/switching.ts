@@ -80,7 +80,7 @@ export const SWITCHING_SYMBOLS: SymbolDef[] = [
     type: 'terminal',
     title: 'Клемма (зажим)',
     category: 'switching',
-    keywords: 'вывод двухполюсник 1 1′ зажим',
+    keywords: 'вывод двухполюсник зажим кружок точка полюс 1 1′ терминал',
     ports: [{ x: 0, y: 0 }],
     bbox: { x: -7, y: -7, w: 14, h: 14 },
     prefix: '',
@@ -88,6 +88,7 @@ export const SWITCHING_SYMBOLS: SymbolDef[] = [
     defaultUnit: '',
     showValue: false,
     hasPolarity: false,
+    labelPlacement: 'right',
     Shape: Terminal,
   }),
 ];

@@ -103,8 +103,8 @@ export function Canvas() {
   return (
     <div
       ref={wrapRef}
-      className="card print-canvas relative flex-1 overflow-hidden no-select"
-      style={{ background: "var(--canvas-bg)", minWidth: 0 }}
+      className="print-canvas no-select absolute inset-0 overflow-hidden"
+      style={{ background: "var(--canvas-bg)" }}
     >
       <svg
         ref={svgRef}

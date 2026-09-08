@@ -48,8 +48,8 @@ export function Inspector() {
 
   return (
     <aside
-      className="no-print card scroll-thin flex h-full flex-col overflow-y-auto"
-      style={{ width: 252, flex: '0 0 auto' }}
+      className="no-print float-panel right scroll-thin"
+      style={{ width: 252, overflowY: 'auto' }}
       aria-label="Свойства"
     >
       <div className="flex items-center gap-2 px-3 pb-1 pt-3">

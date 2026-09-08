@@ -21,13 +21,21 @@ export const ElementLabel = memo(function ElementLabel({ element, selected }: Pr
   const { base, sub } = parseDesignator(label);
   const diagonal = element.rotation % 90 !== 0;
 
-  let anchor: 'middle' | 'end' = 'middle';
+  let anchor: 'middle' | 'end' | 'start' = 'middle';
   let lx: number;
   let ly: number;
   let vx: number;
   let vy: number;
 
-  if (diagonal) {
+  if (getSymbol(element.type).labelPlacement === 'right') {
+    // Зажимы двухполюсника подписываются сбоку: «○ 1», «○ 1′» — как в методичках.
+    const box = elementBBox(element);
+    anchor = 'start';
+    lx = box.x + box.w + 9 + off.x;
+    ly = box.y + box.h / 2 + 5 + off.y;
+    vx = lx;
+    vy = ly + 17;
+  } else if (diagonal) {
     // У диагональных элементов подпись ставится по нормали к оси символа,
     // иначе габаритный прямоугольник уводит её слишком далеко.
     const rad = (element.rotation * Math.PI) / 180;

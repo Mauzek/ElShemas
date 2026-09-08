@@ -3,7 +3,25 @@ import type { ElementType, Point, PortRef, Rotation, SchemaFile } from '../types
 import type { Fragment } from '../lib/mutations';
 
 export type Tool = 'select' | 'hand' | 'wire' | 'text' | 'draw';
-export type DialogName = 'export' | 'manager' | 'bom' | 'shortcuts' | 'check' | 'import' | null;
+export type DialogName = 'export' | 'manager' | 'bom' | 'shortcuts' | 'check' | 'import' | 'save' | null;
+
+/** Запрос подтверждения перед необратимым или заметным действием. */
+export interface ConfirmRequest {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  cancelLabel?: string;
+  danger?: boolean;
+  onConfirm: () => void;
+}
+
+/** Область полотна, перекрытая плавающими панелями. */
+export interface ViewInsets {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
 
 export interface PendingImport {
   doc: SchemaFile;
@@ -64,6 +82,8 @@ interface UiState {
   editing: EditTarget;
   clipboard: Fragment | null;
   pendingImport: PendingImport | null;
+  confirm: ConfirmRequest | null;
+  viewInsets: ViewInsets;
   spacePan: boolean;
   viewSize: { width: number; height: number };
   toast: string | null;
@@ -89,6 +109,9 @@ interface UiState {
   setEditing: (e: EditTarget) => void;
   setClipboard: (f: Fragment | null) => void;
   setPendingImport: (v: PendingImport | null) => void;
+  askConfirm: (request: ConfirmRequest) => void;
+  closeConfirm: () => void;
+  setViewInsets: (insets: Partial<ViewInsets>) => void;
   setSpacePan: (v: boolean) => void;
   setViewSize: (s: { width: number; height: number }) => void;
   showToast: (message: string | null) => void;
@@ -135,7 +158,7 @@ export const useUi = create<UiState>((set, get) => ({
   placingRotation: 0,
   placingMirrored: false,
   ghost: null,
-  viewport: { x: 120, y: 100, zoom: 1 },
+  viewport: { x: 300, y: 150, zoom: 1 },
   selection: emptySelection,
   settings: loadSettings(),
   hoverPort: null,
@@ -145,6 +168,8 @@ export const useUi = create<UiState>((set, get) => ({
   editing: null,
   clipboard: null,
   pendingImport: null,
+  confirm: null,
+  viewInsets: { left: 16, right: 16, top: 16, bottom: 16 },
   spacePan: false,
   viewSize: { width: 1200, height: 800 },
   toast: null,
@@ -197,6 +222,9 @@ export const useUi = create<UiState>((set, get) => ({
   setEditing: (editing) => set({ editing }),
   setClipboard: (clipboard) => set({ clipboard }),
   setPendingImport: (pendingImport) => set({ pendingImport, dialog: pendingImport ? 'import' : null }),
+  askConfirm: (confirm) => set({ confirm }),
+  closeConfirm: () => set({ confirm: null }),
+  setViewInsets: (insets) => set((s) => ({ viewInsets: { ...s.viewInsets, ...insets } })),
   setSpacePan: (spacePan) => set({ spacePan }),
   setViewSize: (viewSize) => set({ viewSize }),
   showToast: (toast) => {

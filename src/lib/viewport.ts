@@ -27,16 +27,46 @@ export function zoomAt(vp: Viewport, factor: number, screenX: number, screenY: n
   return { zoom, x: screenX - wx * zoom, y: screenY - wy * zoom };
 }
 
-export function fitViewport(view: { width: number; height: number }, content: Rect | null, padding = 60): Viewport {
-  if (!content) return { x: view.width / 2, y: view.height / 2, zoom: 1 };
+export interface Insets {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+const NO_INSETS: Insets = { left: 0, right: 0, top: 0, bottom: 0 };
+
+/**
+ * Вписывает содержимое в свободную часть полотна.
+ * `insets` — области, перекрытые плавающими панелями: центр считается по ним,
+ * иначе схема уезжала бы под палитру и панель свойств.
+ */
+export function fitViewport(
+  view: { width: number; height: number },
+  content: Rect | null,
+  padding = 60,
+  insets: Insets = NO_INSETS,
+): Viewport {
+  const freeLeft = insets.left;
+  const freeTop = insets.top;
+  const freeWidth = Math.max(120, view.width - insets.left - insets.right);
+  const freeHeight = Math.max(120, view.height - insets.top - insets.bottom);
+  const centerX = freeLeft + freeWidth / 2;
+  const centerY = freeTop + freeHeight / 2;
+  if (!content) return { x: centerX, y: centerY, zoom: 1 };
   const box = content;
+  // Мелкую схему не раздуваем во весь экран: потолок вписывания — 200 %.
   const zoom = clampZoom(
-    Math.min((view.width - padding * 2) / Math.max(box.w, 1), (view.height - padding * 2) / Math.max(box.h, 1)),
+    Math.min(
+      2,
+      (freeWidth - padding * 2) / Math.max(box.w, 1),
+      (freeHeight - padding * 2) / Math.max(box.h, 1),
+    ),
   );
   return {
     zoom,
-    x: view.width / 2 - (box.x + box.w / 2) * zoom,
-    y: view.height / 2 - (box.y + box.h / 2) * zoom,
+    x: centerX - (box.x + box.w / 2) * zoom,
+    y: centerY - (box.y + box.h / 2) * zoom,
   };
 }
 

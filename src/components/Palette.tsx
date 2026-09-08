@@ -36,8 +36,8 @@ export function Palette({ collapsed, onToggleCollapsed }: Props) {
 
   return (
     <aside
-      className="no-print card flex h-full flex-col overflow-hidden"
-      style={{ width: collapsed ? 76 : 232, flex: '0 0 auto' }}
+      className="no-print float-panel left"
+      style={{ width: collapsed ? 76 : 232 }}
       aria-label="Библиотека элементов"
     >
       <div className="flex items-center gap-1 px-2 pt-2">

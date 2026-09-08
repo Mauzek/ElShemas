@@ -32,6 +32,8 @@ export interface SymbolDef {
   defaultUnit: string;
   showValue: boolean;
   hasPolarity: boolean;
+  /** Где ставить подпись: auto — сверху или слева по габариту, right — справа от знака (зажимы 1, 1′). */
+  labelPlacement?: 'auto' | 'right';
   Shape: FC<ShapeProps>;
 }
 

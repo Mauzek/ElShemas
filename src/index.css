@@ -162,28 +162,97 @@ select {
   -ms-user-select: none;     /* IE/Edge */
   user-select: none;         /* Стандартное свойство */
 }
-/* ---------- Каркас ---------- */
+/* ---------- Каркас: полотно во весь экран, панели плавают над ним ---------- */
 
 .app-shell {
-  display: flex;
-  flex-direction: column;
+  position: relative;
   height: 100%;
-  gap: 10px;
-  padding: 10px;
-}
-
-.app-body {
-  display: flex;
-  flex: 1 1 auto;
-  min-height: 0;
-  gap: 10px;
+  overflow: hidden;
+  background: var(--canvas-bg);
 }
 
 .card {
   background: var(--ui-surface);
   border: 1px solid var(--ui-line);
   border-radius: var(--r-card);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
+}
+
+/* Плавающая панель над полотном. */
+.float-bar {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 6px;
+  border: 1px solid var(--ui-line);
+  border-radius: var(--r-pill);
+  background: var(--ui-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.float-bar.top-left {
+  top: 14px;
+  left: 14px;
+}
+
+.float-bar.top-right {
+  top: 14px;
+  right: 14px;
+}
+
+.float-panel {
+  position: absolute;
+  z-index: 18;
+  top: 74px;
+  bottom: 74px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-md);
+}
+
+.float-panel.left {
+  left: 14px;
+}
+
+.float-panel.right {
+  right: 14px;
+}
+
+.status-bar {
+  position: absolute;
+  z-index: 16;
+  left: 14px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(50% - 210px);
+  padding: 5px 8px;
+  border: 1px solid var(--ui-line);
+  border-radius: var(--r-pill);
+  background: var(--ui-surface);
+  box-shadow: var(--shadow-md);
+  color: var(--ui-muted);
+  font-size: 11.5px;
+}
+
+/* Строка состояния сжимается по мере сужения окна, подпись автора остаётся. */
+@media (max-width: 1560px) {
+  .status-hide-lg {
+    display: none;
+  }
+}
+
+@media (max-width: 1280px) {
+  .status-hide-md {
+    display: none;
+  }
 }
 
 /* ---------- Кнопки ---------- */
@@ -542,6 +611,90 @@ input[type='range'] {
   transform: scale(1.14);
 }
 
+/* ---------- Меню ---------- */
+
+.menu-popup {
+  position: fixed;
+  z-index: 60;
+  padding: 5px;
+  border: 1px solid var(--ui-line);
+  border-radius: 16px;
+  background: var(--ui-surface);
+  box-shadow: var(--shadow-lg);
+  animation: pop-in 0.1s ease-out;
+}
+
+.menu-section + .menu-section {
+  margin-top: 5px;
+  padding-top: 5px;
+}
+
+.menu-title {
+  padding: 3px 9px 2px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  height: 32px;
+  padding: 0 9px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ui-ink);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.menu-item:hover:not(:disabled) {
+  background: var(--ui-surface-2);
+}
+
+.menu-item:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.menu-item.danger {
+  color: var(--ui-danger);
+}
+
+.menu-item.danger:hover:not(:disabled) {
+  background: var(--ui-danger-soft);
+}
+
+.menu-icon {
+  flex: 0 0 auto;
+  color: var(--ui-muted);
+}
+
+.menu-item.danger .menu-icon {
+  color: inherit;
+}
+
+.menu-hint {
+  margin-left: auto;
+  padding-left: 8px;
+  color: var(--ui-muted);
+  font-weight: 500;
+  font-size: 11px;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ---------- Подсказки ---------- */
 
 .tooltip {
@@ -580,23 +733,192 @@ html.dark .tooltip {
 .dialog-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 40;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  background: rgba(12, 18, 32, 0.4);
-  backdrop-filter: blur(3px);
+  padding: 24px;
+  background: rgba(10, 15, 28, 0.42);
+  backdrop-filter: blur(4px);
+  animation: fade-in 0.12s ease-out;
 }
 
 .dialog {
   display: flex;
   flex-direction: column;
-  max-height: 88vh;
+  max-width: 100%;
+  max-height: 86vh;
   background: var(--ui-surface);
   border: 1px solid var(--ui-line);
   border-radius: 22px;
   box-shadow: var(--shadow-lg);
+  animation: dialog-in 0.16s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.dialog-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 18px 14px;
+}
+
+.dialog-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent);
+}
+
+.dialog-icon.danger {
+  background: var(--ui-danger-soft);
+  color: var(--ui-danger);
+}
+
+.dialog-title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 22px;
+}
+
+.dialog-desc {
+  margin-top: 2px;
+  color: var(--ui-muted);
+  font-weight: 500;
+  line-height: 17px;
+}
+
+.dialog-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0 18px 18px;
+}
+
+.dialog-body.flush {
+  padding: 0;
+}
+
+.dialog-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--ui-line);
+}
+
+.dialog-foot .tbtn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 12px;
+}
+
+.tbtn-solid-danger {
+  background: var(--ui-danger);
+  color: #fff;
+}
+
+.tbtn-solid-danger:hover:not(:disabled) {
+  background: var(--ui-danger);
+  filter: brightness(1.08);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Менеджер схем ---------- */
+
+.schema-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 18px 12px;
+  background: var(--ui-surface);
+}
+
+.schema-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: 12px;
+  padding: 0 18px 18px;
+}
+
+.schema-card {
+  overflow: hidden;
+  border: 1px solid var(--ui-line);
+  border-radius: 16px;
+  background: var(--ui-surface);
+  transition: border-color 0.14s ease, box-shadow 0.14s ease, transform 0.14s ease;
+}
+
+.schema-card:hover {
+  border-color: var(--ui-accent-ring);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.schema-card.current {
+  border-color: var(--ui-accent);
+}
+
+.schema-card-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 10px 10px 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.schema-card-thumb svg {
+  width: 100%;
+  height: 124px;
+}
+
+.schema-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--ui-accent);
+  color: var(--ui-accent-ink);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.schema-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 48px 18px 56px;
+  text-align: center;
 }
 
 .toast {

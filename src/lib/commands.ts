@@ -1,4 +1,4 @@
-import { emptySchema } from '../types/schema';
+import { emptySchema, type SchemaFile } from '../types/schema';
 import { useDoc } from '../store/useDoc';
 import { useUi } from '../store/useUi';
 import { cloneFragment, extractFragment } from './mutations';
@@ -9,18 +9,45 @@ import { fitViewport } from './viewport';
 import { makeId } from './ids';
 import { selectionCount } from '../store/useUi';
 
-export function cmdNew(): void {
+/** Стартовый вид: начало координат чуть правее палитры, чтобы схема не пряталась под панелью. */
+export function startViewport() {
+  const { viewInsets } = useUi.getState();
+  return { x: viewInsets.left + 60, y: viewInsets.top + 60, zoom: 1 };
+}
+
+function resetToEmpty(): void {
   useDoc.getState().setDoc(emptySchema(), makeId('doc'));
   const ui = useUi.getState();
   ui.clearSelection();
-  ui.setViewport({ x: 120, y: 100, zoom: 1 });
+  ui.setViewport(startViewport());
   ui.showToast('Создана новая схема');
 }
 
-export function cmdSaveJson(): void {
+export function cmdNew(): void {
   const doc = useDoc.getState().doc;
+  const isEmpty =
+    doc.elements.length === 0 && doc.wires.length === 0 && doc.labels.length === 0 && doc.strokes.length === 0;
+  if (isEmpty) {
+    resetToEmpty();
+    return;
+  }
+  useUi.getState().askConfirm({
+    title: 'Создать новую схему?',
+    message: `Текущая схема «${doc.title}» останется в разделе «Мои схемы» — её можно открыть в любой момент.`,
+    confirmLabel: 'Создать',
+    onConfirm: resetToEmpty,
+  });
+}
+
+/** Открывает диалог выгрузки: имя файла подтверждается перед скачиванием. */
+export function cmdSaveJson(): void {
+  useUi.getState().setDialog('save');
+}
+
+/** Немедленная выгрузка без диалога — для карточек в менеджере схем. */
+export function downloadSchema(doc: SchemaFile): void {
   downloadText(`${safeFileName(doc.title)}.json`, serializeSchema(doc), 'application/json');
-  useUi.getState().showToast('Файл схемы сохранён');
+  useUi.getState().showToast(`Файл ${safeFileName(doc.title)}.json сохранён`);
 }
 
 export function cmdOpenFile(file: File): void {
@@ -113,7 +140,8 @@ export function cmdMirror(): void {
 
 export function cmdFit(): void {
   const ui = useUi.getState();
-  ui.setViewport(fitViewport(ui.viewSize, docBounds(useDoc.getState().doc)));
+  // Плавающие панели перекрывают полотно — вписываем в свободную область.
+  ui.setViewport(fitViewport(ui.viewSize, docBounds(useDoc.getState().doc), 40, ui.viewInsets));
 }
 
 export function cmdZoomReset(): void {
