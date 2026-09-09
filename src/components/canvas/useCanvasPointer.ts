@@ -66,7 +66,7 @@ export function useCanvasPointer(svgRef: RefObject<SVGSVGElement>): CanvasPointe
       const world = toWorld(e.clientX, e.clientY);
       e.currentTarget.setPointerCapture(e.pointerId);
 
-      if (e.button === 1 || (e.button === 0 && (ui.spacePan || ui.tool === 'hand'))) {
+      if (e.button === 1 || (e.button === 0 && (ui.spacePan || ui.viewOnly || ui.tool === 'hand'))) {
         interaction.current = {
           mode: 'pan',
           startX: e.clientX,
@@ -248,6 +248,7 @@ export function useCanvasPointer(svgRef: RefObject<SVGSVGElement>): CanvasPointe
 
   const onDoubleClick = useCallback((e: MouseEvent<SVGSVGElement>) => {
     const ui = useUi.getState();
+    if (ui.viewOnly) return;
     if (ui.wireDraft) {
       finishWire(ui.wireDraft.points, null);
       setPreview([]);
@@ -279,6 +280,7 @@ export function useCanvasPointer(svgRef: RefObject<SVGSVGElement>): CanvasPointe
   const onDrop = useCallback(
     (e: DragEvent<SVGSVGElement>) => {
       e.preventDefault();
+      if (useUi.getState().viewOnly) return;
       handleDrop(
         e.dataTransfer.files?.[0],
         e.dataTransfer.getData('application/x-elshemas-symbol'),

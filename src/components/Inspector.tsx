@@ -3,15 +3,19 @@ import { FlipHorizontal2, Pencil, RotateCw, Trash2 } from 'lucide-react';
 import { ROTATIONS, type Rotation } from '../types/schema';
 import { useDoc } from '../store/useDoc';
 import { selectionCount, useUi } from '../store/useUi';
+import { branchOf, useResults } from '../store/useResults';
 import { getSymbol } from '../symbols/registry';
 import { normalizePrimes } from '../lib/designator';
 import { cmdDelete } from '../lib/commands';
+import { formatSi } from '../lib/units';
 import { AlignControls } from './AlignControls';
 import { Dropdown } from './Dropdown';
 import { ColorField } from './ColorField';
 import { TextField } from './TextField';
 import { PenSettings } from './PenSettings';
 import { RenderSettings } from './RenderSettings';
+import { ResultsPanel } from './ResultsPanel';
+import { VariablesPanel } from './VariablesPanel';
 import { Row } from './Row';
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -20,6 +24,37 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
       {title && <p className="section-title mb-2">{title}</p>}
       {children}
     </section>
+  );
+}
+
+/** Результат расчёта для выделенного элемента. */
+function ElementResult({
+  elementId,
+  digits,
+  result,
+}: {
+  elementId: string;
+  digits: number;
+  result: ReturnType<typeof useResults.getState>['shown'];
+}) {
+  const branch = branchOf(result, elementId);
+  if (!branch) return null;
+  const rows: [string, string][] = [];
+  if (Number.isFinite(branch.current)) rows.push(['Ток', formatSi(branch.current, 'А', digits)]);
+  if (Number.isFinite(branch.voltage)) rows.push(['Напряжение', formatSi(branch.voltage, 'В', digits)]);
+  if (Number.isFinite(branch.power)) {
+    rows.push([branch.power < 0 ? 'Отдаёт' : 'Мощность', formatSi(Math.abs(branch.power), 'Вт', digits)]);
+  }
+  if (rows.length === 0) return null;
+  return (
+    <div className="res-balance mb-2">
+      {rows.map(([name, value]) => (
+        <span className="res-card-row" key={name}>
+          <span style={{ color: 'var(--ui-muted)' }}>{name}</span>
+          <b>{value}</b>
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -32,6 +67,9 @@ export function Inspector() {
   const patchLabels = useDoc((s) => s.patchLabels);
   const rotateSelection = useDoc((s) => s.rotateSelection);
   const mirrorSelection = useDoc((s) => s.mirrorSelection);
+  const showResults = useDoc((s) => s.doc.analysis.enabled);
+  const digits = useDoc((s) => s.doc.analysis.digits);
+  const shownResult = useResults((s) => s.shown);
 
   const elements = doc.elements.filter((e) => selection.elements.includes(e.id));
   const wires = doc.wires.filter((w) => selection.wires.includes(w.id));
@@ -74,6 +112,12 @@ export function Inspector() {
                 </span>
               ))}
             </div>
+            <Section title="Расчёт">
+              <ResultsPanel />
+            </Section>
+            <Section title="Переменные">
+              <VariablesPanel />
+            </Section>
             {tool === 'draw' && (
               <Section title="Карандаш">
                 <PenSettings />
@@ -103,6 +147,7 @@ export function Inspector() {
                 <Row label="Значение">
                   <TextField value={first.value} onCommit={(v) => patchElements(ids, { value: v })} ariaLabel="Значение" />
                 </Row>
+                {showResults && <ElementResult elementId={first.id} digits={digits} result={shownResult} />}
               </>
             )}
             <Row label="Единица">
@@ -230,6 +275,12 @@ export function Inspector() {
               Штрихи карандаша. Новые рисуются с текущими настройками ниже.
             </p>
             <PenSettings />
+          </Section>
+        )}
+
+        {total > 0 && showResults && (
+          <Section title="Расчёт">
+            <ResultsPanel />
           </Section>
         )}
 

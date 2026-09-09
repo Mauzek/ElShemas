@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type {
+  AnalysisSettings,
   Element,
   ElementType,
   Point,
@@ -39,6 +40,8 @@ interface DocState {
   setDocId: (id: string) => void;
   setTitle: (title: string) => void;
   setGrid: (grid: number) => void;
+  setAnalysis: (patch: Partial<AnalysisSettings>) => void;
+  setVariables: (variables: Record<string, string>) => void;
 
   createElement: (type: ElementType, x: number, y: number, rotation: Rotation, mirrored: boolean) => Element;
   addElement: (el: Element) => void;
@@ -94,6 +97,11 @@ export const useDoc = create<DocState>((set, get) => {
     setDocId: (docId) => set({ docId }),
     setTitle: (title) => commit((doc) => ({ ...doc, title })),
     setGrid: (grid) => commit((doc) => ({ ...doc, grid })),
+    // Переключатели показа результатов историю не засоряют: это настройка вида,
+    // хотя и хранится в документе, чтобы уехать вместе с файлом.
+    setAnalysis: (patch) =>
+      set((s) => ({ doc: { ...s.doc, analysis: { ...s.doc.analysis, ...patch } } })),
+    setVariables: (variables) => commit((doc) => ({ ...doc, variables })),
 
     createElement: (type, x, y, rotation, mirrored) => {
       const def = getSymbol(type);

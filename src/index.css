@@ -146,6 +146,110 @@ select {
   color: var(--ui-accent);
 }
 
+/* ---------- Результаты расчёта на схеме ---------- */
+
+:root {
+  --res-current: #0f766e;
+  --res-voltage: #b45309;
+  --res-generated: #15803d;
+  --res-consumed: #be123c;
+}
+
+html.dark {
+  --res-current: #2dd4bf;
+  --res-voltage: #fbbf24;
+  --res-generated: #4ade80;
+  --res-consumed: #fb7185;
+}
+
+.res-text {
+  fill: currentColor;
+  stroke: none;
+  font-family: var(--sch-font);
+  font-size: 12px;
+  font-style: normal;
+  paint-order: stroke;
+}
+
+.res-current {
+  color: var(--res-current);
+}
+
+.res-voltage {
+  color: var(--res-voltage);
+}
+
+.res-generated {
+  color: var(--res-generated);
+}
+
+.res-consumed {
+  color: var(--res-consumed);
+}
+
+.res-potential {
+  color: var(--ui-ink);
+  font-size: 11px;
+}
+
+.res-arrow {
+  stroke: var(--res-current);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.res-flow {
+  stroke: var(--res-current);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.28;
+}
+
+/* Карточка ветви при наведении. */
+.res-card {
+  position: fixed;
+  z-index: 90;
+  min-width: 140px;
+  padding: 8px 10px;
+  border: 1px solid var(--ui-line);
+  border-radius: var(--r-card);
+  background: var(--ui-surface);
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+  animation: tip-in 0.09s ease-out;
+}
+
+.res-card b {
+  color: var(--ui-ink);
+}
+
+.res-card-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  line-height: 17px;
+}
+
+/* Плашка баланса мощностей. */
+.res-balance {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  border-radius: var(--r-field);
+  background: var(--ui-surface-2);
+}
+
+.res-problem {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  padding: 5px 7px;
+  border-radius: var(--r-field);
+  text-align: left;
+  line-height: 16px;
+}
+
 .hit {
   fill: transparent;
   stroke: transparent;
@@ -176,6 +280,24 @@ select {
   border: 1px solid var(--ui-line);
   border-radius: var(--r-card);
   box-shadow: var(--shadow-md);
+}
+
+/* Сообщение о схеме, открытой по ссылке. */
+.share-banner {
+  position: absolute;
+  z-index: 30;
+  top: 76px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px 7px 14px;
+  transform: translateX(-50%);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--r-pill);
+  background: var(--ui-surface);
+  box-shadow: var(--shadow-md);
+  animation: pop-in 0.16s ease-out;
 }
 
 /* Плавающая панель над полотном. */

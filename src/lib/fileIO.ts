@@ -1,5 +1,5 @@
-import type { Element, Point, Rotation, SchemaFile, Stroke, TextLabel, Wire } from '../types/schema';
-import { ROTATIONS, SCHEMA_VERSION } from '../types/schema';
+import type { AnalysisSettings, Element, Point, Rotation, SchemaFile, Stroke, TextLabel, Wire } from '../types/schema';
+import { defaultAnalysis, ROTATIONS, SCHEMA_VERSION, SUPPORTED_VERSIONS } from '../types/schema';
 import { hasSymbol } from '../symbols/registry';
 import { makeId } from './ids';
 
@@ -30,6 +30,37 @@ function toPoint(v: unknown): Point | null {
   return { x: v.x, y: v.y };
 }
 
+/** Настройки расчёта. Файлы версии 1 их не содержат — берутся значения по умолчанию. */
+function toAnalysis(v: unknown): AnalysisSettings {
+  const base = defaultAnalysis();
+  if (!isObj(v)) return base;
+  const reference = toPoint(v.reference);
+  return {
+    enabled: bool(v.enabled, base.enabled),
+    mode: v.mode === 'ac' ? 'ac' : 'dc',
+    frequency: Math.min(1e9, Math.max(0, num(v.frequency, base.frequency))) || base.frequency,
+    showCurrents: bool(v.showCurrents, base.showCurrents),
+    showVoltages: bool(v.showVoltages, base.showVoltages),
+    showPowers: bool(v.showPowers, base.showPowers),
+    showPotentials: bool(v.showPotentials, base.showPotentials),
+    thickByCurrent: bool(v.thickByCurrent, base.thickByCurrent),
+    signedCurrents: bool(v.signedCurrents, base.signedCurrents),
+    digits: Math.min(8, Math.max(2, Math.round(num(v.digits, base.digits)))),
+    ...(reference ? { reference } : {}),
+  };
+}
+
+/** Переменные схемы: только строковые значения, имена без пробелов. */
+function toVariables(v: unknown): Record<string, string> {
+  if (!isObj(v)) return {};
+  const out: Record<string, string> = {};
+  for (const [name, value] of Object.entries(v)) {
+    if (!name.trim() || typeof value !== 'string') continue;
+    out[name.trim()] = value;
+  }
+  return out;
+}
+
 /** Разбор и санация файла схемы. Некорректные записи отбрасываются, а не роняют приложение. */
 export function parseSchema(text: string): ParseResult {
   let raw: unknown;
@@ -40,13 +71,13 @@ export function parseSchema(text: string): ParseResult {
   }
   if (!isObj(raw)) return { ok: false, error: 'Ожидался объект схемы.' };
   const version = raw.version;
-  if (version !== SCHEMA_VERSION) {
+  if (typeof version !== 'number') {
+    return { ok: false, error: 'В файле нет поля version — это не схема данного редактора.' };
+  }
+  if (!SUPPORTED_VERSIONS.includes(version)) {
     return {
       ok: false,
-      error:
-        typeof version === 'number'
-          ? `Несовместимая версия файла: ${version}. Поддерживается версия ${SCHEMA_VERSION}.`
-          : 'В файле нет поля version — это не схема данного редактора.',
+      error: `Несовместимая версия файла: ${version}. Поддерживаются версии ${SUPPORTED_VERSIONS.join(', ')}.`,
     };
   }
 
@@ -159,6 +190,8 @@ export function parseSchema(text: string): ParseResult {
       wires,
       labels,
       strokes,
+      analysis: toAnalysis(raw.analysis),
+      variables: toVariables(raw.variables),
     },
   };
 }

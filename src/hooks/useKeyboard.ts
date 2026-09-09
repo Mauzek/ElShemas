@@ -50,6 +50,12 @@ export function useKeyboard(): void {
         return;
       }
 
+      // Режим просмотра по ссылке: только навигация, схема не правится.
+      if (ui.viewOnly) {
+        const allowed = ['Digit0', 'Numpad0', 'Digit1', 'Numpad1', 'KeyE', 'KeyP'];
+        if (!(e.ctrlKey || e.metaKey) || !allowed.includes(e.code)) return;
+      }
+
       if (e.ctrlKey || e.metaKey) {
         switch (e.code) {
           case 'KeyZ':
@@ -84,6 +90,10 @@ export function useKeyboard(): void {
           case 'KeyE':
             e.preventDefault();
             ui.setDialog('export');
+            return;
+          case 'KeyR':
+            e.preventDefault();
+            doc.setAnalysis({ enabled: !doc.doc.analysis.enabled });
             return;
           case 'Digit0':
           case 'Numpad0':

@@ -120,8 +120,44 @@ export interface TextLabel {
   color?: string;
 }
 
+/** Режим и оформление расчёта. Хранится в документе: разные схемы считаются по-разному. */
+export interface AnalysisSettings {
+  /** Считать схему и показывать результаты. Хранится в документе, поэтому уезжает по ссылке. */
+  enabled: boolean;
+  mode: 'dc' | 'ac';
+  /** Частота в герцах для режима переменного тока. */
+  frequency: number;
+  showCurrents: boolean;
+  showVoltages: boolean;
+  showPowers: boolean;
+  showPotentials: boolean;
+  /** Толщина провода пропорциональна току. */
+  thickByCurrent: boolean;
+  /** Показывать знак тока вместо разворота стрелки. */
+  signedCurrents: boolean;
+  /** Число значащих цифр в подписях результатов. */
+  digits: number;
+  /** Узел, принятый за опорный (φ = 0). Если не задан — выбирается автоматически. */
+  reference?: Point;
+}
+
+export function defaultAnalysis(): AnalysisSettings {
+  return {
+    enabled: false,
+    mode: 'dc',
+    frequency: 50,
+    showCurrents: true,
+    showVoltages: false,
+    showPowers: false,
+    showPotentials: false,
+    thickByCurrent: false,
+    signedCurrents: false,
+    digits: 4,
+  };
+}
+
 export interface SchemaFile {
-  version: 1;
+  version: 2;
   title: string;
   /** Шаг сетки в px. */
   grid: number;
@@ -130,6 +166,10 @@ export interface SchemaFile {
   labels: TextLabel[];
   /** Рисунок от руки. Поле необязательное: файлы без него открываются как обычно. */
   strokes: Stroke[];
+  /** Настройки расчёта. Файлы версии 1 открываются со значениями по умолчанию. */
+  analysis: AnalysisSettings;
+  /** Переменные схемы: имя → выражение. Используются в значениях элементов. */
+  variables: Record<string, string>;
 }
 
 export type SelectionKind = 'element' | 'wire' | 'label' | 'stroke';
@@ -139,8 +179,21 @@ export interface SelectionItem {
   id: string;
 }
 
-export const SCHEMA_VERSION = 1 as const;
+export const SCHEMA_VERSION = 2 as const;
+
+/** Версии файлов, которые редактор умеет читать. */
+export const SUPPORTED_VERSIONS = [1, 2];
 
 export function emptySchema(title = 'Новая схема'): SchemaFile {
-  return { version: SCHEMA_VERSION, title, grid: 20, elements: [], wires: [], labels: [], strokes: [] };
+  return {
+    version: SCHEMA_VERSION,
+    title,
+    grid: 20,
+    elements: [],
+    wires: [],
+    labels: [],
+    strokes: [],
+    analysis: defaultAnalysis(),
+    variables: {},
+  };
 }

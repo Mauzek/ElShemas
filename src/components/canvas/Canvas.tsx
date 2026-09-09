@@ -13,6 +13,7 @@ import { WireView } from './WireView';
 import { FreeLabelView } from './FreeLabelView';
 import { StrokeView, strokePath } from './StrokeView';
 import { Junctions } from './Junctions';
+import { ResultsLayer } from './ResultsLayer';
 import { Overlay } from './Overlay';
 import { InlineEditor } from '../InlineEditor';
 import { ZoomIndicator } from '../ZoomIndicator';
@@ -34,6 +35,7 @@ export function Canvas() {
   const wireDraft = useUi((s) => s.wireDraft);
   const placing = useUi((s) => s.placingType);
   const spacePan = useUi((s) => s.spacePan);
+  const viewOnly = useUi((s) => s.viewOnly);
 
   const pointer = useCanvasPointer(svgRef);
 
@@ -169,6 +171,7 @@ export function Canvas() {
                 />
               ))}
             </g>
+            <ResultsLayer doc={doc} conn={conn} />
             <g data-layer="strokes">
               {doc.strokes.map((st) => (
                 <StrokeView
@@ -202,7 +205,7 @@ export function Canvas() {
           />
         </g>
       </svg>
-      <FloatingToolbar />
+      {!viewOnly && <FloatingToolbar />}
       <ZoomIndicator viewSize={size} />
       <InlineEditor />
     </div>

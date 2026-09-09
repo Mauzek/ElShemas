@@ -1,9 +1,19 @@
 import { create } from 'zustand';
 import type { ElementType, Point, PortRef, Rotation, SchemaFile } from '../types/schema';
 import type { Fragment } from '../lib/mutations';
+import { isViewOnly } from '../lib/share';
 
 export type Tool = 'select' | 'hand' | 'wire' | 'text' | 'draw';
-export type DialogName = 'export' | 'manager' | 'bom' | 'shortcuts' | 'check' | 'import' | 'save' | null;
+export type DialogName =
+  | 'export'
+  | 'manager'
+  | 'bom'
+  | 'shortcuts'
+  | 'check'
+  | 'import'
+  | 'save'
+  | 'share'
+  | null;
 
 /** Запрос подтверждения перед необратимым или заметным действием. */
 export interface ConfirmRequest {
@@ -87,6 +97,10 @@ interface UiState {
   spacePan: boolean;
   viewSize: { width: number; height: number };
   toast: string | null;
+  /** Режим просмотра по ссылке: панели скрыты, схема только читается. */
+  viewOnly: boolean;
+  /** Схема открыта по ссылке и ещё не сохранена в «Мои схемы». */
+  sharedNotice: boolean;
 
   setTool: (tool: Tool) => void;
   startPlacing: (type: ElementType) => void;
@@ -115,6 +129,7 @@ interface UiState {
   setSpacePan: (v: boolean) => void;
   setViewSize: (s: { width: number; height: number }) => void;
   showToast: (message: string | null) => void;
+  setSharedNotice: (v: boolean) => void;
 }
 
 const SETTINGS_KEY = 'elshemas.settings';
@@ -173,6 +188,8 @@ export const useUi = create<UiState>((set, get) => ({
   spacePan: false,
   viewSize: { width: 1200, height: 800 },
   toast: null,
+  viewOnly: isViewOnly(),
+  sharedNotice: false,
 
   setTool: (tool) => set({ tool, placingType: null, wireDraft: null, ghost: null }),
   startPlacing: (type) =>
@@ -227,6 +244,7 @@ export const useUi = create<UiState>((set, get) => ({
   setViewInsets: (insets) => set((s) => ({ viewInsets: { ...s.viewInsets, ...insets } })),
   setSpacePan: (spacePan) => set({ spacePan }),
   setViewSize: (viewSize) => set({ viewSize }),
+  setSharedNotice: (sharedNotice) => set({ sharedNotice }),
   showToast: (toast) => {
     window.clearTimeout(toastTimer);
     set({ toast });

@@ -1,4 +1,4 @@
-import { Cable, Grid3x3, Hand, Magnet, MousePointer2, Pencil, Type as TypeIcon } from 'lucide-react';
+import { Cable, Grid3x3, Hand, Magnet, MousePointer2, Pencil, Type as TypeIcon, Zap } from 'lucide-react';
 import { useDoc } from '../store/useDoc';
 import { useUi, type Tool } from '../store/useUi';
 import { Dropdown } from './Dropdown';
@@ -21,6 +21,8 @@ export function FloatingToolbar() {
   const setSettings = useUi((s) => s.setSettings);
   const grid = useDoc((s) => s.doc.grid);
   const setGrid = useDoc((s) => s.setGrid);
+  const analysisOn = useDoc((s) => s.doc.analysis.enabled);
+  const setAnalysis = useDoc((s) => s.setAnalysis);
 
   return (
     <div className="floating-bar no-print" role="toolbar" aria-label="Инструменты">
@@ -66,6 +68,17 @@ export function FloatingToolbar() {
           { value: 40, label: '40 px' },
         ]}
       />
+
+      <span className="divider-v" />
+
+      <button
+        className={`tbtn ${analysisOn ? 'active' : ''}`}
+        onClick={() => setAnalysis({ enabled: !analysisOn })}
+        data-tip="Считать схему: токи и напряжения на схеме (Ctrl+R)"
+        aria-pressed={analysisOn}
+      >
+        <Zap size={17} />
+      </button>
 
       {tool === 'draw' && (
         <>
